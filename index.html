@@ -147,23 +147,38 @@
             return new Promise((resolve, reject) => {
                 // 在实际Web服务器环境中，这里应该是一个AJAX请求
                 // 由于浏览器安全限制，前端JavaScript无法直接访问文件系统
-                // 以下是模拟实现，实际使用时需要后端支持
                 
-                // 模拟延迟
-                setTimeout(() => {
-                    // 模拟文件列表（实际环境中应由服务器提供）
-                    const mockFiles = [
-                        { filename: "sample1.html", title: "示例页面 1" },
-                        { filename: "sample2.html", title: "示例页面 2" },
-                        { filename: "ai_news_summary.html", title: "AI新闻摘要" },
-                        { filename: "sample5.html", title: "示例页面 5" }
-                    ];
-                    
-                    // 过滤掉自身（index.html）
-                    const filteredFiles = mockFiles.filter(file => file.filename !== 'index.html');
-                    
-                    resolve(filteredFiles);
-                }, 800);
+                // 尝试通过fetch API获取文件列表
+                // 注意：这需要服务器端提供相应的API端点
+                fetch('/api/get-html-files')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // 过滤掉自身（index.html）
+                        const filteredFiles = data.filter(file => file.filename !== 'index.html');
+                        resolve(filteredFiles);
+                    })
+                    .catch(error => {
+                        console.error('获取文件列表失败:', error);
+                        
+                        // 在开发环境中，可以使用静态文件列表作为后备
+                        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                            console.log('使用开发环境后备文件列表');
+                            const devFiles = [
+                                { filename: "sample1.html", title: "示例页面 1" },
+                                { filename: "sample2.html", title: "示例页面 2" },
+                                { filename: "ai_news_summary.html", title: "AI新闻摘要" },
+                                { filename: "sample5.html", title: "示例页面 5" }
+                            ];
+                            resolve(devFiles);
+                        } else {
+                            reject(error);
+                        }
+                    });
             });
         }
 
