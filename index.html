@@ -1,0 +1,2716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>科技学习心得 | 个人知识库</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <!-- ScrollReveal -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#00f2ff',
+                            light: '#73fdff',
+                            dark: '#00c1cc',
+                        },
+                        secondary: {
+                            DEFAULT: '#7b00ff',
+                            light: '#a855ff',
+                            dark: '#5a00cc',
+                        },
+                        dark: {
+                            DEFAULT: '#0a0a16',
+                            light: '#1a1a2e',
+                            lighter: '#16213e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Rajdhani', 'sans-serif'],
+                        mono: ['Orbitron', 'monospace'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    },
+                    boxShadow: {
+                        'neon': '0 0 5px theme("colors.primary"), 0 0 20px theme("colors.primary")',
+                        'neon-secondary': '0 0 5px theme("colors.secondary"), 0 0 20px theme("colors.secondary")',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #0a0a16;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        .font-mono {
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .bg-grid {
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .text-glow {
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.7), 0 0 20px rgba(0, 242, 255, 0.5);
+        }
+        
+        .text-glow-secondary {
+            text-shadow: 0 0 10px rgba(123, 0, 255, 0.7), 0 0 20px rgba(123, 0, 255, 0.5);
+        }
+        
+        .border-glow {
+            box-shadow: 0 0 5px rgba(0, 242, 255, 0.7), 0 0 20px rgba(0, 242, 255, 0.5);
+            border: 1px solid rgba(0, 242, 255, 0.5);
+        }
+        
+        .border-glow-secondary {
+            box-shadow: 0 0 5px rgba(123, 0, 255, 0.7), 0 0 20px rgba(123, 0, 255, 0.5);
+            border: 1px solid rgba(123, 0, 255, 0.5);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.7), 0 0 30px rgba(0, 242, 255, 0.5);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #00f2ff 0%, #7b00ff 100%);
+            height: 4px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+        
+        .canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00f2ff, #7b00ff);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00f2ff, #7b00ff, #00f2ff);
+            z-index: -1;
+            animation: glowing 3s linear infinite;
+            background-size: 400%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 0.5rem;
+        }
+        
+        .btn-glow:hover::before {
+            opacity: 1;
+        }
+        
+        @keyframes glowing {
+            0% { background-position: 0 0; }
+            50% { background-position: 400% 0; }
+            100% { background-position: 0 0; }
+        }
+        
+        .tag {
+            transition: all 0.3s ease;
+        }
+        
+        .tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.7);
+        }
+        
+        .article-card {
+            transition: all 0.5s ease;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+        }
+        
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 242, 255, 0.1) 0%, rgba(123, 0, 255, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 0.5rem;
+        }
+        
+        .article-card:hover::before {
+            opacity: 1;
+        }
+        
+        .glass-effect {
+            background: rgba(26, 26, 46, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .timeline-item {
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: linear-gradient(to bottom, #00f2ff, #7b00ff);
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: -31px;
+            top: 10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00f2ff;
+            box-shadow: 0 0 10px #00f2ff;
+        }
+        
+        /* 加载动画 */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #00f2ff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* 代码块样式 */
+        .code-block {
+            position: relative;
+            background: rgba(10, 10, 22, 0.8);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            border: 1px solid rgba(0, 242, 255, 0.3);
+        }
+        
+        .code-block::before {
+            content: attr(data-language);
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: linear-gradient(90deg, #00f2ff, #7b00ff);
+            color: #0a0a16;
+            padding: 0.2rem 0.8rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .timeline-item::before,
+            .timeline-item::after {
+                display: none;
+            }
+            
+            .article-card:hover {
+                transform: translateY(-5px) rotateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark">
+    <!-- 进度条 -->
+    <div class="progress-bar"></div>
+    
+    <!-- 3D背景容器 -->
+    <div class="canvas-container" id="canvas-container"></div>
+    
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 w-full z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center glass-effect">
+            <a href="#" class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                    <i class="fas fa-brain text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold font-mono text-white">TechMind</span>
+            </a>
+            
+            <!-- 桌面导航 -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#home" class="nav-link text-white hover:text-primary transition-colors font-medium active">首页</a>
+                <a href="#about" class="nav-link text-white hover:text-primary transition-colors font-medium">关于我</a>
+                <a href="#articles" class="nav-link text-white hover:text-primary transition-colors font-medium">学习心得</a>
+                <a href="#skills" class="nav-link text-white hover:text-primary transition-colors font-medium">技能</a>
+                <a href="#contact" class="nav-link text-white hover:text-primary transition-colors font-medium">联系我</a>
+            </div>
+            
+            <!-- 移动端菜单按钮 -->
+            <button class="md:hidden text-white focus:outline-none" id="menu-toggle">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+        
+        <!-- 移动端导航菜单 -->
+        <div class="md:hidden hidden bg-dark-light w-full absolute top-full left-0 py-4 px-4 glass-effect" id="mobile-menu">
+            <div class="flex flex-col space-y-4">
+                <a href="#home" class="text-white hover:text-primary transition-colors font-medium py-2 mobile-nav-link">首页</a>
+                <a href="#about" class="text-white hover:text-primary transition-colors font-medium py-2 mobile-nav-link">关于我</a>
+                <a href="#articles" class="text-white hover:text-primary transition-colors font-medium py-2 mobile-nav-link">学习心得</a>
+                <a href="#skills" class="text-white hover:text-primary transition-colors font-medium py-2 mobile-nav-link">技能</a>
+                <a href="#contact" class="text-white hover:text-primary transition-colors font-medium py-2 mobile-nav-link">联系我</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 首页 Hero 部分 -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative pt-20 overflow-hidden bg-grid">
+        <div class="absolute inset-0 bg-gradient-to-b from-dark to-dark-light opacity-80"></div>
+        
+        <!-- 装饰元素 -->
+        <div class="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-primary/10 blur-3xl"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-40 h-40 rounded-full bg-secondary/10 blur-3xl"></div>
+        
+        <div class="container mx-auto px-4 py-20 relative z-10">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-4 font-mono">
+                        <span class="text-white">探索</span>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-glow">未来科技</span>
+                        <span class="text-white">，</span>
+                    </h1>
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 font-mono">
+                        <span class="text-white">分享</span>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-glow">学习心得</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-lg">
+                        欢迎来到我的个人知识库，这里记录了我对前沿科技的探索与学习心得。
+                        跟随我的脚步，一起探索人工智能、量子计算、元宇宙等未来科技领域。
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#articles" class="btn-glow bg-dark-light hover:bg-dark-lighter text-white font-medium py-3 px-6 rounded-lg border border-primary/30 transition-all">
+                            <i class="fas fa-book-open mr-2"></i>浏览学习心得
+                        </a>
+                        <a href="#about" class="bg-transparent hover:bg-dark-light text-white font-medium py-3 px-6 rounded-lg border border-primary/50 transition-all">
+                            <i class="fas fa-user mr-2"></i>了解更多
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="md:w-2/5 flex justify-center">
+                    <div class="relative w-64 h-64 md:w-80 md:h-80 animate-float">
+                        <div class="absolute inset-0 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 blur-xl"></div>
+                        <div class="absolute inset-2 rounded-full border-2 border-primary/30 animate-pulse-slow"></div>
+                        <div class="absolute inset-0 rounded-full overflow-hidden border-4 border-dark-light border-glow">
+                            <img src="https://p3-doubao-search-sign.byteimg.com/labis/61809bb0fbf25d457627da02a4c38572~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1786269530&x-signature=2dMHB4i3vTR0uLLnO2It4SA%2BbRI%3D" 
+                                 alt="个人头像" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 数据统计 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
+                <div class="glass-effect rounded-xl p-6 border border-primary/20 text-center transform transition-all hover:scale-105 hover:border-primary/50">
+                    <div class="text-4xl font-bold text-primary text-glow mb-2" id="article-count">0</div>
+                    <div class="text-gray-400">学习心得</div>
+                </div>
+                <div class="glass-effect rounded-xl p-6 border border-primary/20 text-center transform transition-all hover:scale-105 hover:border-primary/50">
+                    <div class="text-4xl font-bold text-primary text-glow mb-2" id="category-count">0</div>
+                    <div class="text-gray-400">知识领域</div>
+                </div>
+                <div class="glass-effect rounded-xl p-6 border border-primary/20 text-center transform transition-all hover:scale-105 hover:border-primary/50">
+                    <div class="text-4xl font-bold text-primary text-glow mb-2" id="view-count">0</div>
+                    <div class="text-gray-400">总浏览量</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 向下滚动指示 -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <a href="#about" class="text-primary text-4xl">
+                <i class="fas fa-chevron-down"></i>
+            </a>
+        </div>
+    </section>
+    
+    <!-- 关于我部分 -->
+    <section id="about" class="py-20 relative bg-dark-light bg-grid">
+        <div class="absolute inset-0 bg-gradient-to-b from-dark-light to-dark opacity-80"></div>
+        
+        <!-- 装饰元素 -->
+        <div class="absolute top-1/3 right-1/3 w-32 h-32 rounded-full bg-primary/10 blur-3xl"></div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4 font-mono text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-glow">关于我</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mb-6"></div>
+                <p class="text-gray-300 max-w-2xl mx-auto">了解我的背景、专业技能和学习历程，以及我对未来科技的热情与追求。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="order-2 md:order-1">
+                    <div class="glass-effect rounded-xl p-8 border border-primary/20">
+                        <h3 class="text-2xl font-bold mb-6 font-mono text-primary">个人简介</h3>
+                        <p class="text-gray-300 mb-6">
+                            我是一名对未来科技充满热情的学习者和探索者，专注于人工智能、量子计算和元宇宙等前沿技术领域的研究与应用。
+                            通过持续学习和实践，我致力于将复杂的技术概念转化为易于理解的知识分享。
+                        </p>
+                        
+                        <h3 class="text-2xl font-bold mb-4 font-mono text-primary">学习历程</h3>
+                        <div class="space-y-6 pl-8">
+                            <div class="timeline-item">
+                                <h4 class="text-xl font-semibold text-white">人工智能与机器学习</h4>
+                                <p class="text-gray-400 mb-2">深度学习、自然语言处理、计算机视觉</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">TensorFlow</span>
+                                    <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">PyTorch</span>
+                                    <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">NLP</span>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <h4 class="text-xl font-semibold text-white">量子计算基础</h4>
+                                <p class="text-gray-400 mb-2">量子力学、量子算法、量子信息论</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">Qiskit</span>
+                                    <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">Cirq</span>
+                                    <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">量子算法</span>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <h4 class="text-xl font-semibold text-white">元宇宙与Web3</h4>
+                                <p class="text-gray-400 mb-2">虚拟现实、区块链技术、去中心化应用</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">Three.js</span>
+                                    <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">区块链</span>
+                                    <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">NFT</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-1 md:order-2 flex justify-center">
+                    <div class="relative w-full max-w-md">
+                        <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/20 to-secondary/20 blur-xl"></div>
+                        <div class="glass-effect rounded-2xl p-8 border border-primary/30 relative">
+                            <div class="flex justify-center mb-8">
+                                <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/50 border-glow">
+                                    <img src="https://p3-doubao-search-sign.byteimg.com/labis/61809bb0fbf25d457627da02a4c38572~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1786269530&x-signature=2dMHB4i3vTR0uLLnO2It4SA%2BbRI%3D" 
+                                         alt="个人头像" 
+                                         class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-2xl font-bold text-center mb-2 font-mono text-white">陈默</h3>
+                            <p class="text-center text-primary mb-6">AI研究员 | 科技爱好者 | 终身学习者</p>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-full bg-dark flex items-center justify-center text-primary">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-400">邮箱</div>
+                                        <div class="text-white">chenmo@example.com</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-full bg-dark flex items-center justify-center text-primary">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-400">所在地</div>
+                                        <div class="text-white">中国，北京</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-full bg-dark flex items-center justify-center text-primary">
+                                        <i class="fas fa-briefcase"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-400">职业</div>
+                                        <div class="text-white">人工智能工程师</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8">
+                                <h4 class="text-lg font-semibold mb-4 text-white">专业技能</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-300">人工智能</span>
+                                            <span class="text-sm text-primary">90%</span>
+                                        </div>
+                                        <div class="w-full bg-dark rounded-full h-2">
+                                            <div class="bg-gradient-to-r from-primary to-secondary h-2 rounded-full" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-300">量子计算</span>
+                                            <span class="text-sm text-primary">75%</span>
+                                        </div>
+                                        <div class="w-full bg-dark rounded-full h-2">
+                                            <div class="bg-gradient-to-r from-primary to-secondary h-2 rounded-full" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-300">Web3与元宇宙</span>
+                                            <span class="text-sm text-primary">80%</span>
+                                        </div>
+                                        <div class="w-full bg-dark rounded-full h-2">
+                                            <div class="bg-gradient-to-r from-primary to-secondary h-2 rounded-full" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-300">数据科学</span>
+                                            <span class="text-sm text-primary">85%</span>
+                                        </div>
+                                        <div class="w-full bg-dark rounded-full h-2">
+                                            <div class="bg-gradient-to-r from-primary to-secondary h-2 rounded-full" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 flex justify-center space-x-4">
+                                <a href="#" class="w-10 h-10 rounded-full bg-dark flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-all">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-dark flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-all">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-dark flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-all">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-dark flex items-center justify-center text-primary hover:bg-primary hover:text-dark transition-all">
+                                    <i class="fab fa-weixin"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 学习心得部分 -->
+    <section id="articles" class="py-20 relative bg-dark bg-grid">
+        <div class="absolute inset-0 bg-gradient-to-b from-dark to-dark-light opacity-80"></div>
+        
+        <!-- 装饰元素 -->
+        <div class="absolute bottom-1/4 left-1/4 w-40 h-40 rounded-full bg-secondary/10 blur-3xl"></div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4 font-mono text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-glow">学习心得</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mb-6"></div>
+                <p class="text-gray-300 max-w-2xl mx-auto">
+                    这里记录了我在探索前沿科技领域过程中的学习心得和知识总结，希望能为你带来启发和帮助。
+                </p>
+            </div>
+            
+            <!-- 分类筛选 -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button class="category-filter active bg-dark-light hover:bg-dark-lighter text-white font-medium py-2 px-6 rounded-lg border border-primary/30 transition-all" data-category="all">
+                    全部
+                </button>
+                <button class="category-filter bg-dark-light hover:bg-dark-lighter text-white font-medium py-2 px-6 rounded-lg border border-primary/30 transition-all" data-category="ai">
+                    人工智能
+                </button>
+                <button class="category-filter bg-dark-light hover:bg-dark-lighter text-white font-medium py-2 px-6 rounded-lg border border-primary/30 transition-all" data-category="quantum">
+                    量子计算
+                </button>
+                <button class="category-filter bg-dark-light hover:bg-dark-lighter text-white font-medium py-2 px-6 rounded-lg border border-primary/30 transition-all" data-category="metaverse">
+                    元宇宙
+                </button>
+                <button class="category-filter bg-dark-light hover:bg-dark-lighter text-white font-medium py-2 px-6 rounded-lg border border-primary/30 transition-all" data-category="datascience">
+                    数据科学
+                </button>
+            </div>
+            
+            <!-- 搜索框 -->
+            <div class="max-w-md mx-auto mb-12">
+                <div class="relative">
+                    <input type="text" id="article-search" placeholder="搜索学习心得..." class="w-full bg-dark-light border border-primary/30 rounded-lg py-3 px-5 pr-12 text-white focus:outline-none focus:border-primary transition-all">
+                    <button class="absolute right-4 top-1/2 transform -translate-y-1/2 text-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 文章卡片网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="articles-container">
+                <!-- 文章卡片将通过JavaScript动态生成 -->
+            </div>
+            
+            <!-- 加载更多按钮 -->
+            <div class="text-center mt-12">
+                <button id="load-more" class="btn-glow bg-dark-light hover:bg-dark-lighter text-white font-medium py-3 px-8 rounded-lg border border-primary/30 transition-all">
+                    <i class="fas fa-sync-alt mr-2"></i>加载更多
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 技能部分 -->
+    <section id="skills" class="py-20 relative bg-dark-light bg-grid">
+        <div class="absolute inset-0 bg-gradient-to-b from-dark-light to-dark opacity-80"></div>
+        
+        <!-- 装饰元素 -->
+        <div class="absolute top-1/4 right-1/4 w-32 h-32 rounded-full bg-primary/10 blur-3xl"></div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4 font-mono text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-glow">专业技能</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mb-6"></div>
+                <p class="text-gray-300 max-w-2xl mx-auto">
+                    我精通多个前沿科技领域，以下是我的核心技能和专业知识。
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- 左侧：技能雷达图 -->
+                <div class="glass-effect rounded-xl p-6 border border-primary/20">
+                    <h3 class="text-2xl font-bold mb-6 font-mono text-primary text-center">技能雷达</h3>
+                    <div class="relative h-80">
+                        <canvas id="skills-radar"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 右侧：技能详情 -->
+                <div class="space-y-6">
+                    <div class="glass-effect rounded-xl p-6 border border-primary/20 transform transition-all hover:scale-105 hover:border-primary/50">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-dark flex items-center justify-center text-primary mr-4">
+                                <i class="fas fa-brain text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">人工智能与机器学习</h3>
+                        </div>
+                        <p class="text-gray-300 mb-4">
+                            深入研究深度学习、自然语言处理和计算机视觉等AI核心领域，
+                            能够设计和实现复杂的AI模型和算法。
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">深度学习</span>
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">NLP</span>
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">计算机视觉</span>
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">强化学习</span>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-6 border border-primary/20 transform transition-all hover:scale-105 hover:border-primary/50">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-dark flex items-center justify-center text-primary mr-4">
+                                <i class="fas fa-atom text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">量子计算</h3>
+                        </div>
+                        <p class="text-gray-300 mb-4">
+                            掌握量子力学基础和量子算法原理，能够使用Qiskit和Cirq等框架
+                            设计和模拟量子计算应用。
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">量子力学</span>
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">量子算法</span>
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">Qiskit</span>
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">量子信息论</span>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-6 border border-primary/20 transform transition-all hover:scale-105 hover:border-primary/50">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-dark flex items-center justify-center text-primary mr-4">
+                                <i class="fas fa-vr-cardboard text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">元宇宙与Web3</h3>
+                        </div>
+                        <p class="text-gray-300 mb-4">
+                            探索虚拟现实、增强现实和区块链技术的交叉应用，
+                            开发去中心化应用和元宇宙体验。
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">Three.js</span>
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">区块链</span>
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">NFT</span>
+                            <span class="tag bg-dark px-3 py-1 rounded-full text-xs text-primary border border-primary/30">VR/AR</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 技术栈 -->
+            <div class="mt-16">
+                <h3 class="text-2xl font-bold mb-8 font-mono text-primary text-center">技术栈</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                    <div class="glass-effect rounded-xl p-4 border border-primary/20 flex flex-col items-center justify-center text-center transform transition-all hover:scale-105 hover:border-primary/50">
+                        <div class="w-16 h-16 rounded-full bg-dark flex items-center justify-center text-primary mb-4">
+                            <i class="fab fa-python text-3xl"></i>
+                        </div>
+                        <h4 class="text-white font-medium">Python</h4>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-4 border border-primary/20 flex flex-col items-center justify-center text-center transform transition-all hover:scale-105 hover:border-primary/50">
+                        <div class="w-16 h-16 rounded-full bg-dark flex items-center justify-center text-primary mb-4">
+                            <i class="fas fa-brain text-3xl"></i>
+                        </div>
+                        <h4 class="text-white font-medium">TensorFlow</h4>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-4 border border-primary/20 flex flex-col items-center justify-center text-center transform transition-all hover:scale-105 hover:border-primary/50">
+                        <div class="w-16 h-16 rounded-full bg-dark flex items-center justify-center text-primary mb-4">
+                            <i class="fas fa-atom text-3xl"></i>
+                        </div>
+                        <h4 class="text-white font-medium">Qiskit</h4>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-4 border border-primary/20 flex flex-col items-center justify-center text-center transform transition-all hover:scale-105 hover:border-primary/50">
+                        <div class="w-16 h-16 rounded-full bg-dark flex items-center justify-center text-primary mb-4">
+                            <i class="fab fa-js text-3xl"></i>
+                        </div>
+                        <h4 class="text-white font-medium">JavaScript</h4>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-4 border border-primary/20 flex flex-col items-center justify-center text-center transform transition-all hover:scale-105 hover:border-primary/50">
+                        <div class="w-16 h-16 rounded-full bg-dark flex items-center justify-center text-primary mb-4">
+                            <i class="fab fa-react text-3xl"></i>
+                        </div>
+                        <h4 class="text-white font-medium">React</h4>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-4 border border-primary/20 flex flex-col items-center justify-center text-center transform transition-all hover:scale-105 hover:border-primary/50">
+                        <div class="w-16 h-16 rounded-full bg-dark flex items-center justify-center text-primary mb-4">
+                            <i class="fas fa-cube text-3xl"></i>
+                        </div>
+                        <h4 class="text-white font-medium">Three.js</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 联系部分 -->
+    <section id="contact" class="py-20 relative bg-dark bg-grid">
+        <div class="absolute inset-0 bg-gradient-to-b from-dark to-dark-light opacity-80"></div>
+        
+        <!-- 装饰元素 -->
+        <div class="absolute top-1/3 left-1/3 w-32 h-32 rounded-full bg-secondary/10 blur-3xl"></div>
+        <div class="absolute bottom-1/3 right-1/3 w-40 h-40 rounded-full bg-primary/10 blur-3xl"></div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4 font-mono text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-glow">联系我</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mb-6"></div>
+                <p class="text-gray-300 max-w-2xl mx-auto">
+                    如果您对我的学习心得有任何问题，或者想要探讨前沿科技话题，欢迎随时联系我。
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- 联系表单 -->
+                <div class="glass-effect rounded-xl p-8 border border-primary/20">
+                    <h3 class="text-2xl font-bold mb-6 font-mono text-primary">发送消息</h3>
+                    <form id="contact-form" class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-gray-300 mb-2">姓名</label>
+                            <input type="text" id="name" class="w-full bg-dark-light border border-primary/30 rounded-lg py-3 px-5 text-white focus:outline-none focus:border-primary transition-all" placeholder="请输入您的姓名">
+                        </div>
+                        
+                        <div>
+                            <label for="email" class="block text-gray-300 mb-2">邮箱</label>
+                            <input type="email" id="email" class="w-full bg-dark-light border border-primary/30 rounded-lg py-3 px-5 text-white focus:outline-none focus:border-primary transition-all" placeholder="请输入您的邮箱">
+                        </div>
+                        
+                        <div>
+                            <label for="subject" class="block text-gray-300 mb-2">主题</label>
+                            <input type="text" id="subject" class="w-full bg-dark-light border border-primary/30 rounded-lg py-3 px-5 text-white focus:outline-none focus:border-primary transition-all" placeholder="请输入消息主题">
+                        </div>
+                        
+                        <div>
+                            <label for="message" class="block text-gray-300 mb-2">消息</label>
+                            <textarea id="message" rows="5" class="w-full bg-dark-light border border-primary/30 rounded-lg py-3 px-5 text-white focus:outline-none focus:border-primary transition-all" placeholder="请输入您的消息内容"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-glow w-full bg-dark-light hover:bg-dark-lighter text-white font-medium py-3 px-6 rounded-lg border border-primary/30 transition-all">
+                            <i class="fas fa-paper-plane mr-2"></i>发送消息
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- 联系信息 -->
+                <div>
+                    <div class="glass-effect rounded-xl p-8 border border-primary/20 mb-8">
+                        <h3 class="text-2xl font-bold mb-6 font-mono text-primary">联系方式</h3>
+                        <div class="space-y-6">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-full bg-dark flex items-center justify-center text-primary">
+                                    <i class="fas fa-envelope text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-400">邮箱</div>
+                                    <div class="text-white">chenmo@example.com</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-full bg-dark flex items-center justify-center text-primary">
+                                    <i class="fas fa-phone-alt text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-400">电话</div>
+                                    <div class="text-white">+86 123 4567 8910</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-full bg-dark flex items-center justify-center text-primary">
+                                    <i class="fas fa-map-marker-alt text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-400">地址</div>
+                                    <div class="text-white">北京市海淀区中关村科技园区</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 社交媒体 -->
+                    <div class="glass-effect rounded-xl p-8 border border-primary/20">
+                        <h3 class="text-2xl font-bold mb-6 font-mono text-primary">关注我</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <a href="#" class="flex items-center space-x-4 p-4 bg-dark rounded-lg hover:bg-dark-light transition-all">
+                                <div class="w-10 h-10 rounded-full bg-dark-light flex items-center justify-center text-primary">
+                                    <i class="fab fa-github text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-400">GitHub</div>
+                                    <div class="text-white">@chenmo</div>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="flex items-center space-x-4 p-4 bg-dark rounded-lg hover:bg-dark-light transition-all">
+                                <div class="w-10 h-10 rounded-full bg-dark-light flex items-center justify-center text-primary">
+                                    <i class="fab fa-linkedin-in text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-400">LinkedIn</div>
+                                    <div class="text-white">陈默</div>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="flex items-center space-x-4 p-4 bg-dark rounded-lg hover:bg-dark-light transition-all">
+                                <div class="w-10 h-10 rounded-full bg-dark-light flex items-center justify-center text-primary">
+                                    <i class="fab fa-twitter text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-400">Twitter</div>
+                                    <div class="text-white">@chenmo_ai</div>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="flex items-center space-x-4 p-4 bg-dark rounded-lg hover:bg-dark-light transition-all">
+                                <div class="w-10 h-10 rounded-full bg-dark-light flex items-center justify-center text-primary">
+                                    <i class="fab fa-weixin text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-400">微信</div>
+                                    <div class="text-white">TechMind</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 页脚 -->
+    <footer class="py-10 bg-dark-light relative">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <a href="#" class="flex items-center space-x-2">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                            <i class="fas fa-brain text-white text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold font-mono text-white">TechMind</span>
+                    </a>
+                    <p class="text-gray-400 mt-2">探索未来科技，分享学习心得</p>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+                        <i class="fab fa-linkedin-in text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+                        <i class="fab fa-weixin text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2024 TechMind. 保留所有权利。</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-primary text-sm transition-colors">隐私政策</a>
+                    <a href="#" class="text-gray-400 hover:text-primary text-sm transition-colors">使用条款</a>
+                    <a href="#" class="text-gray-400 hover:text-primary text-sm transition-colors">Cookie政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- 文章详情模态框 -->
+    <div id="article-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-sm"></div>
+        <div class="relative max-w-4xl mx-auto mt-20 mb-10 bg-dark-light rounded-xl overflow-hidden border border-primary/30 max-h-[90vh] flex flex-col">
+            <!-- 模态框头部 -->
+            <div class="flex justify-between items-center p-6 border-b border-primary/20">
+                <h3 id="modal-title" class="text-2xl font-bold font-mono text-white"></h3>
+                <button id="close-modal" class="text-gray-400 hover:text-primary text-2xl transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- 模态框内容 -->
+            <div id="modal-content" class="p-6 overflow-y-auto flex-grow text-gray-300">
+                <!-- 文章内容将通过JavaScript动态填充 -->
+            </div>
+            
+            <!-- 模态框底部 -->
+            <div class="p-6 border-t border-primary/20 flex justify-between items-center">
+                <div class="flex space-x-4">
+                    <button class="text-gray-400 hover:text-primary transition-colors">
+                        <i class="far fa-heart mr-1"></i> <span id="modal-likes">0</span>
+                    </button>
+                    <button class="text-gray-400 hover:text-primary transition-colors">
+                        <i class="far fa-eye mr-1"></i> <span id="modal-views">0</span>
+                    </button>
+                    <button class="text-gray-400 hover:text-primary transition-colors">
+                        <i class="far fa-comment mr-1"></i> <span id="modal-comments">0</span>
+                    </button>
+                </div>
+                
+                <button class="bg-transparent hover:bg-dark text-white font-medium py-2 px-4 rounded-lg border border-primary/50 transition-all">
+                    <i class="fas fa-share-alt mr-2"></i>分享
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI推荐模态框 -->
+    <div id="ai-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-sm"></div>
+        <div class="relative max-w-2xl mx-auto mt-20 mb-10 bg-dark-light rounded-xl overflow-hidden border border-secondary/30">
+            <!-- 模态框头部 -->
+            <div class="flex justify-between items-center p-6 border-b border-secondary/20">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center mr-3">
+                        <i class="fas fa-robot text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold font-mono text-white">AI智能推荐</h3>
+                </div>
+                <button id="close-ai-modal" class="text-gray-400 hover:text-primary text-2xl transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- 模态框内容 -->
+            <div class="p-6">
+                <p class="text-gray-300 mb-6">
+                    基于您的浏览习惯，我们的AI系统为您推荐以下相关学习心得：
+                </p>
+                
+                <div id="ai-recommendations" class="space-y-4">
+                    <!-- AI推荐内容将通过JavaScript动态填充 -->
+                </div>
+                
+                <div class="mt-8">
+                    <h4 class="text-lg font-semibold mb-4 text-white">个性化学习路径</h4>
+                    <div class="glass-effect rounded-lg p-4 border border-secondary/20">
+                        <p class="text-gray-300" id="learning-path">
+                            <!-- 学习路径建议将通过JavaScript动态填充 -->
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 模态框底部 -->
+            <div class="p-6 border-t border-secondary/20 flex justify-end">
+                <button id="dismiss-ai" class="btn-glow bg-dark-light hover:bg-dark-lighter text-white font-medium py-2 px-6 rounded-lg border border-secondary/30 transition-all">
+                    感谢推荐
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 返回顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 w-12 h-12 rounded-full bg-primary text-dark flex items-center justify-center text-xl shadow-neon opacity-0 invisible transition-all z-40">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <!-- AI助手悬浮按钮 -->
+    <button id="ai-assistant-btn" class="fixed bottom-8 left-8 w-14 h-14 rounded-full bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-center text-2xl shadow-neon-secondary animate-pulse-slow z-40">
+        <i class="fas fa-robot"></i>
+    </button>
+    
+    <script>
+        // 文章数据
+        const articles = [
+            {
+                id: 1,
+                title: "深度学习在自然语言处理中的最新进展",
+                category: "ai",
+                categoryName: "人工智能",
+                date: "2024-06-15",
+                summary: "探讨Transformer架构的演进以及在NLP领域的创新应用，包括GPT-4、Claude等大语言模型的技术突破。",
+                content: `
+                    <h4 class="text-xl font-bold text-white mb-4">引言</h4>
+                    <p class="mb-4">自然语言处理(NLP)是人工智能领域中最活跃的研究方向之一，近年来随着深度学习技术的快速发展，NLP领域取得了前所未有的突破。本文将深入探讨深度学习在NLP中的最新进展，特别是Transformer架构的演进及其应用。</p>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">Transformer架构的演进</h4>
+                    <p class="mb-4">自2017年Google发表《Attention Is All You Need》论文以来，Transformer架构已经成为NLP领域的主导模型架构。其核心创新在于自注意力机制(Self-Attention)，能够有效捕捉序列数据中的长距离依赖关系。</p>
+                    
+                    <div class="code-block" data-language="Python">
+import torch
+import torch.nn as nn
+
+class SelfAttention(nn.Module):
+    def __init__(self, embed_size, heads):
+        super(SelfAttention, self).__init__()
+        self.embed_size = embed_size
+        self.heads = heads
+        self.head_dim = embed_size // heads
+        
+        assert (self.head_dim * heads == embed_size), "Embedding size needs to be divisible by heads"
+        
+        self.values = nn.Linear(self.head_dim, self.head_dim, bias=False)
+        self.keys = nn.Linear(self.head_dim, self.head_dim, bias=False)
+        self.queries = nn.Linear(self.head_dim, self.head_dim, bias=False)
+        self.fc_out = nn.Linear(heads * self.head_dim, embed_size)
+        
+    def forward(self, values, keys, query, mask):
+        # 获取批次大小
+        N = query.shape[0]
+        
+        # 获取序列长度
+        value_len, key_len, query_len = values.shape[1], keys.shape[1], query.shape[1]
+        
+        # 重塑张量以便进行多头注意力计算
+        values = values.reshape(N, value_len, self.heads, self.head_dim)
+        keys = keys.reshape(N, key_len, self.heads, self.head_dim)
+        query = query.reshape(N, query_len, self.heads, self.head_dim)
+        
+        # 线性投影
+        values = self.values(values)
+        keys = self.keys(keys)
+        queries = self.queries(query)
+        
+        # 计算注意力分数
+        energy = torch.einsum("nqhd,nkhd->nhqk", [queries, keys])
+        
+        # 应用掩码（用于解码器）
+        if mask is not None:
+            energy = energy.masked_fill(mask == 0, float("-1e20"))
+        
+        # 注意力权重归一化
+        attention = torch.softmax(energy / (self.embed_size ** (1/2)), dim=3)
+        
+        # 应用注意力权重
+        out = torch.einsum("nhql,nlhd->nqhd", [attention, values]).reshape(
+            N, query_len, self.heads * self.head_dim
+        )
+        
+        # 输出投影
+        out = self.fc_out(out)
+        return out
+                    </div>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">大语言模型的崛起</h4>
+                    <p class="mb-4">2020年以来，以GPT-3为代表的大语言模型(LLM)标志着NLP领域的重大突破。这些模型通过在海量文本数据上进行预训练，获得了强大的语言理解和生成能力。</p>
+                    
+                    <p class="mb-4">大语言模型的主要特点包括：</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li>规模庞大：模型参数从数十亿到数千亿不等</li>
+                        <li>通用能力：能够适应多种NLP任务，无需或仅需少量任务特定数据</li>
+                        <li>上下文理解：能够捕捉长文本中的复杂依赖关系</li>
+                        <li>生成质量：能够生成连贯、流畅、符合语境的文本</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">多模态学习的融合</h4>
+                    <p class="mb-4">近年来，NLP的边界逐渐扩展到多模态领域，特别是文本与图像的融合。代表模型包括OpenAI的CLIP、DALL-E以及Google的Flamingo等。</p>
+                    
+                    <p class="mb-4">多模态模型的关键技术创新包括：</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li>对比学习：通过对齐不同模态的表示空间，实现跨模态理解</li>
+                        <li>视觉-语言预训练：在大规模图文数据上进行联合预训练</li>
+                        <li>生成式多模态模型：能够根据文本描述生成高质量图像，或为图像生成详细描述</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">未来发展趋势</h4>
+                    <p class="mb-4">基于当前研究进展，NLP领域的未来发展趋势可能包括：</p>
+                    <ol class="list-decimal pl-6 mb-4 space-y-2">
+                        <li><strong>更高效的大模型</strong>：降低训练和推理成本，使大模型更加普惠</li>
+                        <li><strong>更强的推理能力</strong>：提升模型的逻辑推理和数学推理能力</li>
+                        <li><strong>更好的可解释性</strong>：增强模型决策过程的透明度和可解释性</li>
+                        <li><strong>更广泛的多模态融合</strong>：整合文本、图像、音频、视频等多种模态</li>
+                        <li><strong>领域特化模型</strong>：针对特定行业和应用场景优化的专业模型</li>
+                    </ol>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">结论</h4>
+                    <p class="mb-4">深度学习在NLP领域的应用已经彻底改变了我们与计算机交互的方式。从最初的词嵌入到现代的大语言模型，NLP技术的进步令人瞩目。随着研究的深入，我们可以期待NLP技术在未来发挥更加重要的作用，为各行各业带来创新和变革。</p>
+                `,
+                image: "https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/2cf6fef7966a4ba2bde94593cada67ff~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=202602101758397FEEFFB9BD4ADA2C87DA&rrcfp=f06b921b&x-expires=1773309550&x-signature=3oRGF12shJHzKG3sMwABBOWuGXo%3D",
+                tags: ["深度学习", "NLP", "Transformer", "大语言模型"],
+                views: 1245,
+                likes: 89,
+                comments: 23
+            },
+            {
+                id: 2,
+                title: "量子计算入门：原理与应用前景",
+                category: "quantum",
+                categoryName: "量子计算",
+                date: "2024-05-28",
+                summary: "介绍量子计算的基本原理、量子比特、量子门和量子算法，以及量子计算在密码学、优化问题和模拟领域的潜在应用。",
+                content: `
+                    <h4 class="text-xl font-bold text-white mb-4">量子计算的基本原理</h4>
+                    <p class="mb-4">量子计算是一种基于量子力学原理的计算方式，与传统的经典计算有着本质的区别。经典计算机使用比特(bit)作为基本信息单位，而量子计算机使用量子比特(qubit)。</p>
+                    
+                    <p class="mb-4">量子比特的两个关键特性是：</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>叠加态(Superposition)</strong>：量子比特可以同时处于0和1的叠加状态，而不仅仅是0或1</li>
+                        <li><strong>纠缠态(Entanglement)</strong>：多个量子比特可以形成纠缠态，使得一个比特的状态依赖于其他比特</li>
+                    </ul>
+                    
+                    <div class="code-block" data-language="Python">
+# 使用Qiskit创建一个简单的量子电路
+from qiskit import QuantumCircuit, Aer, execute
+from qiskit.visualization import plot_histogram
+
+# 创建一个2量子比特的电路
+qc = QuantumCircuit(2, 2)
+
+# 添加Hadamard门，创建叠加态
+qc.h(0)
+
+# 添加CNOT门，创建纠缠态
+qc.cx(0, 1)
+
+# 测量量子比特
+qc.measure([0, 1], [0, 1])
+
+# 模拟量子电路
+simulator = Aer.get_backend('qasm_simulator')
+result = execute(qc, simulator, shots=1024).result()
+counts = result.get_counts(qc)
+
+# 可视化结果
+print(counts)
+plot_histogram(counts)
+                    </div>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">量子门与量子电路</h4>
+                    <p class="mb-4">量子门是量子计算的基本操作单元，类似于经典计算中的逻辑门。常见的量子门包括：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>Hadamard门(H门)</strong>：将量子比特置于叠加态</li>
+                        <li><strong>Pauli-X门(X门)</strong>：相当于经典的NOT门，翻转量子比特的状态</li>
+                        <li><strong>CNOT门</strong>：两量子比特门，实现量子纠缠</li>
+                        <li><strong>T门</strong>：引入量子相位</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">量子算法</h4>
+                    <p class="mb-4">量子算法利用量子力学的特性，在某些问题上可以实现指数级的加速。著名的量子算法包括：</p>
+                    
+                    <ol class="list-decimal pl-6 mb-4 space-y-2">
+                        <li><strong>Shor算法</strong>：用于大数分解，对现代密码学构成挑战</li>
+                        <li><strong>Grover搜索算法</strong>：在无序数据库中进行搜索，实现二次加速</li>
+                        <li><strong>量子模拟算法</strong>：模拟量子系统的行为，在化学和材料科学中有重要应用</li>
+                    </ol>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">量子计算的应用前景</h4>
+                    <p class="mb-4">尽管实用的大规模量子计算机尚未实现，但量子计算在多个领域展现出巨大潜力：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>密码学</strong>：开发抗量子密码算法，确保信息安全</li>
+                        <li><strong>药物发现</strong>：模拟分子结构和化学反应，加速新药研发</li>
+                        <li><strong>金融建模</strong>：优化投资组合和风险评估</li>
+                        <li><strong>物流优化</strong>：解决复杂的路由和调度问题</li>
+                        <li><strong>人工智能</strong>：提升机器学习算法的性能</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">量子计算的挑战</h4>
+                    <p class="mb-4">量子计算的发展面临多重挑战：</p>
+                    
+                    <ol class="list-decimal pl-6 mb-4 space-y-2">
+                        <li><strong>量子退相干</strong>：量子比特容易受到环境干扰，导致量子信息丢失</li>
+                        <li><strong>错误率高</strong>：量子操作的错误率远高于经典计算</li>
+                        <li><strong>可扩展性</strong>：构建大规模量子计算机的技术挑战</li>
+                        <li><strong>算法开发</strong>：设计适合量子计算的高效算法</li>
+                    </ol>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">结论</h4>
+                    <p class="mb-4">量子计算代表了计算技术的未来发展方向，尽管距离实用的大规模量子计算机还有很长的路要走，但量子计算在特定领域已经展现出巨大潜力。随着技术的不断进步，量子计算有望在未来几十年内为科学研究和产业发展带来革命性的变化。</p>
+                `,
+                image: "https://p11-doubao-search-sign.byteimg.com/labis/9009285c0f9d27e7942de52e11d3742e~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1786269530&x-signature=2k1EWotio%2BO58w9H9gqlKjZmEXc%3D",
+                tags: ["量子计算", "量子力学", "量子算法", "Qiskit"],
+                views: 987,
+                likes: 76,
+                comments: 18
+            },
+            {
+                id: 3,
+                title: "元宇宙：下一代互联网的演进方向",
+                category: "metaverse",
+                categoryName: "元宇宙",
+                date: "2024-05-10",
+                summary: "探讨元宇宙的概念、技术基础和发展趋势，以及元宇宙对社交、娱乐、教育和商业的潜在影响。",
+                content: `
+                    <h4 class="text-xl font-bold text-white mb-4">元宇宙的概念与演进</h4>
+                    <p class="mb-4">元宇宙(Metaverse)是一个融合了虚拟现实(VR)、增强现实(AR)、区块链和互联网技术的虚拟空间，用户可以在其中进行社交、工作、娱乐和学习等活动。这一概念最早出现在尼尔·斯蒂芬森1992年的科幻小说《雪崩》中，如今正在逐步成为现实。</p>
+                    
+                    <p class="mb-4">元宇宙的核心特征包括：</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>持久存在</strong>：元宇宙是一个持续运行的虚拟世界，不会因为用户的离开而停止</li>
+                        <li><strong>实时性</strong>：支持实时交互和通信</li>
+                        <li><strong>沉浸感</strong>：通过VR/AR技术提供身临其境的体验</li>
+                        <li><strong>经济系统</strong>：拥有自己的虚拟经济和数字货币</li>
+                        <li><strong>用户生成内容</strong>：允许用户创建和分享内容</li>
+                    </ul>
+                    
+                    <div class="code-block" data-language="JavaScript">
+// 使用Three.js创建一个简单的3D元宇宙场景
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+// 创建场景
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a16);
+
+// 创建相机
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 5;
+
+// 创建渲染器
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// 添加控制器
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+// 创建光源
+const ambientLight = new THREE.AmbientLight(0x404040);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0x00f2ff, 1);
+directionalLight.position.set(1, 1, 1);
+scene.add(directionalLight);
+
+// 创建一个简单的虚拟世界
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshStandardMaterial({ 
+    color: 0x7b00ff,
+    metalness: 0.7,
+    roughness: 0.2
+});
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+// 添加地面
+const groundGeometry = new THREE.PlaneGeometry(20, 20);
+const groundMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x1a1a2e,
+    side: THREE.DoubleSide
+});
+const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -1;
+scene.add(ground);
+
+// 动画循环
+function animate() {
+    requestAnimationFrame(animate);
+    
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
+    
+    controls.update();
+    renderer.render(scene, camera);
+}
+
+animate();
+
+// 响应窗口大小变化
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+                    </div>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">元宇宙的技术基础</h4>
+                    <p class="mb-4">元宇宙的实现依赖于多种前沿技术的融合：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>虚拟现实(VR)和增强现实(AR)</strong>：提供沉浸式体验的硬件基础</li>
+                        <li><strong>3D图形和空间计算</strong>：创建逼真的虚拟环境</li>
+                        <li><strong>区块链技术</strong>：实现去中心化的数字资产和身份管理</li>
+                        <li><strong>人工智能</strong>：增强虚拟世界的智能性和交互性</li>
+                        <li><strong>5G/6G网络</strong>：提供低延迟、高带宽的网络连接</li>
+                        <li><strong>云计算</strong>：提供强大的计算和存储能力</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">元宇宙对各行业的影响</h4>
+                    <p class="mb-4">元宇宙将对多个行业产生深远影响：</p>
+                    
+                    <ol class="list-decimal pl-6 mb-4 space-y-2">
+                        <li><strong>社交娱乐</strong>：重新定义人们的社交方式和娱乐体验</li>
+                        <li><strong>教育</strong>：提供沉浸式学习环境，使学习更加生动有效</li>
+                        <li><strong>工作</strong>：改变远程办公模式，提供虚拟协作空间</li>
+                        <li><strong>商业</strong>：创造新的营销和销售渠道</li>
+                        <li><strong>医疗</strong>：实现远程诊疗和虚拟康复训练</li>
+                    </ol>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">元宇宙的挑战与风险</h4>
+                    <p class="mb-4">元宇宙的发展也面临诸多挑战：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>隐私和安全</strong>：虚拟世界中的数据安全和隐私保护</li>
+                        <li><strong>数字鸿沟</strong>：技术接入不平等可能加剧社会分化</li>
+                        <li><strong>监管问题</strong>：虚拟世界的法律和监管框架尚不完善</li>
+                        <li><strong>健康风险</strong>：长时间沉浸可能带来身心健康问题</li>
+                        <li><strong>虚拟成瘾</strong>：可能导致现实生活与虚拟生活的失衡</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">元宇宙的未来展望</h4>
+                    <p class="mb-4">元宇宙的发展将是一个长期过程，未来可能的发展方向包括：</p>
+                    
+                    <ol class="list-decimal pl-6 mb-4 space-y-2">
+                        <li><strong>技术融合</strong>：VR/AR、AI、区块链等技术的深度融合</li>
+                        <li><strong>标准化</strong>：建立元宇宙的技术标准和协议</li>
+                        <li><strong>互操作性</strong>：不同元宇宙平台之间的互联互通</li>
+                        <li><strong>数字身份</strong>：建立跨平台的数字身份系统</li>
+                        <li><strong>虚实融合</strong>：现实世界与虚拟世界的界限逐渐模糊</li>
+                    </ol>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">结论</h4>
+                    <p class="mb-4">元宇宙代表了互联网的下一代演进方向，将深刻改变人们的生活、工作和社交方式。虽然元宇宙的全面实现还需要时间，但相关技术的快速发展已经为元宇宙的到来奠定了基础。我们需要积极应对元宇宙带来的机遇和挑战，确保这一新技术能够造福人类社会。</p>
+                `,
+                image: "https://p3-doubao-search-sign.byteimg.com/labis/b004dc1351d78f3c562aee40ca159160~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1786269531&x-signature=viqM0grTcwDIw6Rh%2BJUoci4QVOc%3D",
+                tags: ["元宇宙", "虚拟现实", "区块链", "Web3"],
+                views: 1532,
+                likes: 124,
+                comments: 35
+            },
+            {
+                id: 4,
+                title: "数据科学中的特征工程：从数据到洞察",
+                category: "datascience",
+                categoryName: "数据科学",
+                date: "2024-04-22",
+                summary: "详细介绍数据科学中的特征工程技术，包括特征选择、特征提取、特征变换和特征创建，以及如何利用这些技术提升机器学习模型的性能。",
+                content: `
+                    <h4 class="text-xl font-bold text-white mb-4">特征工程的重要性</h4>
+                    <p class="mb-4">特征工程是数据科学和机器学习中至关重要的一步，它涉及从原始数据中提取、转换和创建有意义的特征，以便机器学习算法能够更好地理解数据中的模式和关系。良好的特征工程可以显著提升模型性能，有时甚至比选择更复杂的算法更有效。</p>
+                    
+                    <p class="mb-4">特征工程的主要目标包括：</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li>提高模型的预测准确性</li>
+                        <li>减少计算复杂度和训练时间</li>
+                        <li>增强模型的可解释性</li>
+                        <li>处理缺失值和异常值</li>
+                        <li>降低数据维度，避免过拟合</li>
+                    </ul>
+                    
+                    <div class="code-block" data-language="Python">
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder
+from sklearn.feature_selection import SelectKBest, f_classif, mutual_info_classif
+from sklearn.decomposition import PCA
+from sklearn.impute import SimpleImputer
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 加载示例数据集
+# 这里以鸢尾花数据集为例
+from sklearn.datasets import load_iris
+data = load_iris()
+df = pd.DataFrame(data.data, columns=data.feature_names)
+df['target'] = data.target
+
+# 1. 数据探索
+print("数据集基本信息:")
+print(df.info())
+print("\n数据集前5行:")
+print(df.head())
+print("\n目标变量分布:")
+print(df['target'].value_counts())
+
+# 2. 处理缺失值
+print("\n缺失值统计:")
+print(df.isnull().sum())
+
+# 如果有缺失值，可以使用以下方法处理
+# imputer = SimpleImputer(strategy='mean')
+# df_filled = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+
+# 3. 特征标准化/归一化
+# 分离特征和目标变量
+X = df.drop('target', axis=1)
+y = df['target']
+
+# 标准化
+scaler = StandardScaler()
+X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
+print("\n标准化后的特征均值:")
+print(X_scaled.mean().round(4))
+print("\n标准化后的特征标准差:")
+print(X_scaled.std().round(4))
+
+# 4. 特征选择
+# 使用方差分析(ANOVA)选择最佳特征
+selector = SelectKBest(score_func=f_classif, k=2)
+X_new = selector.fit_transform(X_scaled, y)
+
+# 获取选中的特征
+selected_features = X.columns[selector.get_support()]
+print("\n通过ANOVA选择的特征:")
+print(selected_features)
+
+# 5. 特征相关性分析
+plt.figure(figsize=(10, 8))
+corr = X.corr()
+sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('特征相关性矩阵')
+plt.show()
+
+# 6. 主成分分析(PCA)降维
+pca = PCA()
+pca_result = pca.fit_transform(X_scaled)
+
+# 计算解释方差比例
+explained_variance_ratio = pca.explained_variance_ratio_
+cumulative_variance_ratio = np.cumsum(explained_variance_ratio)
+
+print("\n各主成分的解释方差比例:")
+for i, ratio in enumerate(explained_variance_ratio):
+    print(f"PC{i+1}: {ratio:.4f}")
+
+print("\n累积解释方差比例:")
+for i, ratio in enumerate(cumulative_variance_ratio):
+    print(f"前{i+1}个主成分: {ratio:.4f}")
+
+# 可视化PCA结果
+plt.figure(figsize=(12, 6))
+
+# 左图：解释方差比例
+plt.subplot(1, 2, 1)
+plt.bar(range(1, len(explained_variance_ratio) + 1), explained_variance_ratio, alpha=0.6, label='Individual variance')
+plt.step(range(1, len(cumulative_variance_ratio) + 1), cumulative_variance_ratio, where='mid', label='Cumulative variance')
+plt.xlabel('Principal components')
+plt.ylabel('Explained variance ratio')
+plt.title('PCA: Explained Variance')
+plt.legend(loc='best')
+plt.grid(True, alpha=0.3)
+
+# 右图：PCA降维后的散点图
+plt.subplot(1, 2, 2)
+target_names = data.target_names
+for i, target_name in enumerate(target_names):
+    plt.scatter(pca_result[y == i, 0], pca_result[y == i, 1], alpha=0.8, label=target_name)
+plt.xlabel('PC1')
+plt.ylabel('PC2')
+plt.title('PCA: 前两个主成分的散点图')
+plt.legend(loc='best')
+plt.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+                    </div>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">特征工程的主要步骤</h4>
+                    <p class="mb-4">特征工程通常包括以下几个关键步骤：</p>
+                    
+                    <ol class="list-decimal pl-6 mb-4 space-y-2">
+                        <li><strong>数据清洗</strong>：处理缺失值、异常值和重复数据</li>
+                        <li><strong>特征选择</strong>：选择与目标变量最相关的特征</li>
+                        <li><strong>特征提取</strong>：从原始数据中提取有意义的特征</li>
+                        <li><strong>特征变换</strong>：对特征进行标准化、归一化或其他数学变换</li>
+                        <li><strong>特征创建</strong>：基于现有特征创建新的特征</li>
+                        <li><strong>特征降维</strong>：减少特征维度，避免维度灾难</li>
+                    </ol>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">特征选择方法</h4>
+                    <p class="mb-4">特征选择是特征工程中的重要环节，常用的特征选择方法包括：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>过滤法(Filter Methods)</strong>：基于特征与目标变量的统计关系进行选择，如相关系数、卡方检验、方差分析等</li>
+                        <li><strong>包装法(Wrapper Methods)</strong>：通过评估包含不同特征子集的模型性能来选择特征，如递归特征消除(RFE)、逐步回归等</li>
+                        <li><strong>嵌入法(Embedded Methods)</strong>：在模型训练过程中自动进行特征选择，如基于决策树的特征重要性、LASSO回归等</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">特征变换技术</h4>
+                    <p class="mb-4">特征变换可以改善数据的分布特性，提高模型性能：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>标准化(Standardization)</strong>：将特征转换为均值为0，标准差为1的分布</li>
+                        <li><strong>归一化(Normalization)</strong>：将特征缩放到[0,1]或[-1,1]区间</li>
+                        <li><strong>对数变换(Log Transformation)</strong>：处理偏态分布的数据</li>
+                        <li><strong>多项式变换(Polynomial Transformation)</strong>：创建特征的高阶组合</li>
+                        <li><strong>独热编码(One-Hot Encoding)</strong>：处理分类变量</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">特征降维技术</h4>
+                    <p class="mb-4">当特征维度很高时，需要进行特征降维：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>主成分分析(PCA)</strong>：将数据投影到方差最大的方向上</li>
+                        <li><strong>线性判别分析(LDA)</strong>：最大化类间差异，最小化类内差异</li>
+                        <li><strong>t-SNE</strong>：非线性降维技术，常用于数据可视化</li>
+                        <li><strong>UMAP</strong>：一种新型的流形学习算法，保持数据的局部和全局结构</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">特征工程的最佳实践</h4>
+                    <p class="mb-4">进行特征工程时，应遵循以下最佳实践：</p>
+                    
+                    <ol class="list-decimal pl-6 mb-4 space-y-2">
+                        <li>深入理解业务问题和数据含义</li>
+                        <li>进行充分的探索性数据分析(EDA)</li>
+                        <li>保留原始特征的同时创建新特征</li>
+                        <li>使用交叉验证评估特征工程的效果</li>
+                        <li>自动化特征工程流程</li>
+                        <li>记录特征工程的过程和决策</li>
+                    </ol>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">结论</h4>
+                    <p class="mb-4">特征工程是数据科学和机器学习中不可或缺的环节，良好的特征工程可以显著提升模型性能。随着自动化机器学习(AutoML)的发展，一些特征工程任务已经可以自动完成，但对特征工程原理的理解仍然是数据科学家的核心技能。在实际应用中，特征工程应该与业务知识相结合，才能发挥最大效果。</p>
+                `,
+                image: "https://p11-doubao-search-sign.byteimg.com/tos-cn-i-qvj2lq49k0/f1071eb286574c2d89322127fb7f7e63~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1786269530&x-signature=2wuLX4t%2FrVO8NWVSYerDmqXtxRY%3D",
+                tags: ["数据科学", "特征工程", "机器学习", "Python"],
+                views: 1103,
+                likes: 92,
+                comments: 27
+            },
+            {
+                id: 5,
+                title: "生成式AI：从GAN到扩散模型的演进",
+                category: "ai",
+                categoryName: "人工智能",
+                date: "2024-04-05",
+                summary: "深入探讨生成式AI的发展历程，从早期的GAN到最新的扩散模型，分析各种生成模型的原理、优缺点和应用场景。",
+                content: `
+                    <h4 class="text-xl font-bold text-white mb-4">生成式AI的崛起</h4>
+                    <p class="mb-4">生成式人工智能是当前AI领域最热门的研究方向之一，它能够创造出全新的内容，包括图像、文本、音频和视频等。近年来，生成式AI技术取得了突破性进展，从早期的生成对抗网络(GAN)到如今的扩散模型(Diffusion Models)，生成质量和多样性都得到了极大提升。</p>
+                    
+                    <p class="mb-4">生成式AI的主要应用领域包括：</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li>图像生成和编辑</li>
+                        <li>文本生成和翻译</li>
+                        <li>音频合成和音乐创作</li>
+                        <li>视频生成和预测</li>
+                        <li>药物分子设计</li>
+                        <li>游戏内容生成</li>
+                    </ul>
+                    
+                    <div class="code-block" data-language="Python">
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 定义生成器网络
+class Generator(nn.Module):
+    def __init__(self, latent_dim=100, img_channels=1, img_size=28):
+        super(Generator, self).__init__()
+        
+        self.img_size = img_size
+        
+        def block(in_feat, out_feat, normalize=True):
+            layers = [nn.Linear(in_feat, out_feat)]
+            if normalize:
+                layers.append(nn.BatchNorm1d(out_feat, 0.8))
+            layers.append(nn.LeakyReLU(0.2, inplace=True))
+            return layers
+        
+        self.model = nn.Sequential(
+            *block(latent_dim, 128, normalize=False),
+            *block(128, 256),
+            *block(256, 512),
+            *block(512, 1024),
+            nn.Linear(1024, img_channels * img_size * img_size),
+            nn.Tanh()
+        )
+    
+    def forward(self, z):
+        img = self.model(z)
+        img = img.view(img.size(0), 1, self.img_size, self.img_size)
+        return img
+
+# 定义判别器网络
+class Discriminator(nn.Module):
+    def __init__(self, img_channels=1, img_size=28):
+        super(Discriminator, self).__init__()
+        
+        self.model = nn.Sequential(
+            nn.Linear(img_channels * img_size * img_size, 512),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Linear(512, 256),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Linear(256, 1),
+            nn.Sigmoid()
+        )
+    
+    def forward(self, img):
+        img_flat = img.view(img.size(0), -1)
+        validity = self.model(img_flat)
+        return validity
+
+# 训练参数
+batch_size = 64
+latent_dim = 100
+lr = 0.0002
+b1 = 0.5
+b2 = 0.999
+n_epochs = 20
+img_size = 28
+channels = 1
+
+# 准备数据
+transform = transforms.Compose([
+    transforms.Resize(img_size),
+    transforms.ToTensor(),
+    transforms.Normalize([0.5], [0.5])
+])
+
+dataloader = torch.utils.data.DataLoader(
+    datasets.MNIST('./data', train=True, download=True, transform=transform),
+    batch_size=batch_size,
+    shuffle=True
+)
+
+# 初始化模型
+generator = Generator(latent_dim, channels, img_size)
+discriminator = Discriminator(channels, img_size)
+
+# 损失函数
+adversarial_loss = torch.nn.BCELoss()
+
+# 优化器
+optimizer_G = torch.optim.Adam(generator.parameters(), lr=lr, betas=(b1, b2))
+optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=lr, betas=(b1, b2))
+
+# 训练过程
+for epoch in range(n_epochs):
+    for i, (imgs, _) in enumerate(dataloader):
+        
+        # 真实图像标签为1，假图像标签为0
+        valid = torch.ones(imgs.size(0), 1)
+        fake = torch.zeros(imgs.size(0), 1)
+        
+        # 训练判别器
+        optimizer_D.zero_grad()
+        
+        # 真实图像的损失
+        real_loss = adversarial_loss(discriminator(imgs), valid)
+        
+        # 生成假图像
+        z = torch.randn(imgs.size(0), latent_dim)
+        gen_imgs = generator(z)
+        
+        # 假图像的损失
+        fake_loss = adversarial_loss(discriminator(gen_imgs.detach()), fake)
+        
+        # 总损失
+        d_loss = (real_loss + fake_loss) / 2
+        
+        d_loss.backward()
+        optimizer_D.step()
+        
+        # 训练生成器
+        optimizer_G.zero_grad()
+        
+        # 生成器的损失（希望判别器将生成的图像判断为真实）
+        g_loss = adversarial_loss(discriminator(gen_imgs), valid)
+        
+        g_loss.backward()
+        optimizer_G.step()
+        
+        # 打印进度
+        if i % 100 == 0:
+            print(f"[Epoch {epoch}/{n_epochs}] [Batch {i}/{len(dataloader)}] "
+                  f"[D loss: {d_loss.item():.4f}] [G loss: {g_loss.item():.4f}]")
+    
+    # 每个epoch生成并保存一些示例图像
+    with torch.no_grad():
+        z = torch.randn(25, latent_dim)
+        gen_imgs = generator(z)
+        
+        # 反归一化
+        gen_imgs = 0.5 * gen_imgs + 0.5
+        
+        fig, axs = plt.subplots(5, 5, figsize=(10, 10))
+        cnt = 0
+        for i in range(5):
+            for j in range(5):
+                axs[i, j].imshow(gen_imgs[cnt].squeeze(), cmap='gray')
+                axs[i, j].axis('off')
+                cnt += 1
+        plt.savefig(f"gan_samples_epoch_{epoch}.png")
+        plt.close()
+
+print("训练完成！")
+                    </div>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">生成对抗网络(GAN)</h4>
+                    <p class="mb-4">生成对抗网络是由Ian Goodfellow于2014年提出的一种生成模型架构，它由两个主要组件组成：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>生成器(Generator)</strong>：尝试生成看起来真实的数据</li>
+                        <li><strong>判别器(Discriminator)</strong>：尝试区分真实数据和生成的数据</li>
+                    </ul>
+                    
+                    <p class="mb-4">GAN的训练过程是一个极小极大博弈过程，生成器和判别器相互对抗、共同进步，最终生成器能够生成足够逼真的数据，使判别器难以区分真假。</p>
+                    
+                    <p class="mb-4">GAN的主要优点包括：</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li>生成的图像质量高，细节丰富</li>
+                        <li>无需显式建模数据分布</li>
+                        <li>训练过程相对直观</li>
+                    </ul>
+                    
+                    <p class="mb-4">GAN的主要挑战包括：</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li>训练不稳定，容易出现模式崩溃(Mode Collapse)</li>
+                        <li>难以评估生成质量</li>
+                        <li>需要大量的训练数据</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">变分自编码器(VAE)</h4>
+                    <p class="mb-4">变分自编码器是另一种流行的生成模型，它结合了自编码器和变分贝叶斯推断的思想。VAE的主要组件包括：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>编码器(Encoder)</strong>：将输入数据映射到潜在空间的概率分布</li>
+                        <li><strong>解码器(Decoder)</strong>：从潜在空间的采样重建输入数据</li>
+                    </ul>
+                    
+                    <p class="mb-4">与GAN相比，VAE的优点包括：</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li>训练更加稳定</li>
+                        <li>可以生成多样化的样本</li>
+                        <li>潜在空间具有连续性，便于插值和编辑</li>
+                    </ul>
+                    
+                    <p class="mb-4">VAE的主要缺点是生成的图像通常比GAN模糊，细节不够丰富。</p>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">扩散模型(Diffusion Models)</h4>
+                    <p class="mb-4">扩散模型是近年来崛起的一类生成模型，它的基本思想是通过逐步向数据中添加噪声，然后学习如何逆转这个过程来生成新的数据。扩散模型的主要步骤包括：</p>
+                    
+                    <ol class="list-decimal pl-6 mb-4 space-y-2">
+                        <li><strong>前向扩散过程</strong>：逐步向数据中添加高斯噪声，直到数据完全随机</li>
+                        <li><strong>反向扩散过程</strong>：学习如何从随机噪声逐步恢复出有意义的数据</li>
+                    </ol>
+                    
+                    <p class="mb-4">扩散模型的主要优点包括：</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li>生成质量高，细节丰富</li>
+                        <li>训练稳定，不需要精心设计的对抗训练</li>
+                        <li>可以处理多种类型的数据，包括图像、文本和音频</li>
+                        <li>支持条件生成和可控生成</li>
+                    </ul>
+                    
+                    <p class="mb-4">扩散模型的主要缺点是推理过程较慢，需要多次迭代才能生成一个样本。</p>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">生成式AI的最新进展</h4>
+                    <p class="mb-4">近年来，生成式AI领域涌现出许多令人印象深刻的模型和应用：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>DALL-E和DALL-E 2</strong>：OpenAI开发的文本到图像生成模型</li>
+                        <li><strong>Midjourney</strong>：基于扩散模型的高质量图像生成系统</li>
+                        <li><strong>Stable Diffusion</strong>：开源的文本到图像扩散模型</li>
+                        <li><strong>ChatGPT</strong>：基于大型语言模型的对话系统</li>
+                        <li><strong>MusicLM</strong>：Google开发的文本到音乐生成模型</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">生成式AI的未来展望</h4>
+                    <p class="mb-4">生成式AI的未来发展方向包括：</p>
+                    
+                    <ol class="list-decimal pl-6 mb-4 space-y-2">
+                        <li><strong>多模态生成</strong>：整合文本、图像、音频和视频的生成能力</li>
+                        <li><strong>可控生成</strong>：提供更精细的控制机制，使用户能够精确指定生成内容的各个方面</li>
+                        <li><strong>高效生成</strong>：降低计算成本，加快生成速度</li>
+                        <li><strong>个性化生成</strong>：根据用户偏好和需求定制生成内容</li>
+                        <li><strong>自监督学习</strong>：减少对标注数据的依赖</li>
+                    </ol>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">结论</h4>
+                    <p class="mb-4">生成式AI已经从简单的GAN发展到复杂的扩散模型，生成质量和多样性都得到了极大提升。这些技术正在各行各业创造价值，从艺术创作到产品设计，从内容创作到科学研究。随着技术的不断进步，生成式AI有望在未来发挥更加重要的作用，为人类创造更多价值。</p>
+                `,
+                image: "https://p3-doubao-search-sign.byteimg.com/labis/d02da20cf0ca67c659beb24ed71dbb78~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1786269530&x-signature=I9%2BofUlHCcXOrr1K2KUDsm%2F9R%2FY%3D",
+                tags: ["生成式AI", "GAN", "扩散模型", "深度学习"],
+                views: 1756,
+                likes: 143,
+                comments: 42
+            },
+            {
+                id: 6,
+                title: "量子机器学习：量子计算与AI的融合",
+                category: "quantum",
+                categoryName: "量子计算",
+                date: "2024-03-18",
+                summary: "探讨量子机器学习的基本原理、主要算法和潜在优势，以及量子计算如何加速机器学习任务，为AI带来革命性突破。",
+                content: `
+                    <h4 class="text-xl font-bold text-white mb-4">量子机器学习的兴起</h4>
+                    <p class="mb-4">量子机器学习是量子计算和机器学习的交叉领域，它探索如何利用量子计算的优势来加速机器学习算法或开发全新的量子机器学习方法。随着量子计算技术的不断进步，量子机器学习已经成为一个备受关注的研究热点。</p>
+                    
+                    <p class="mb-4">量子机器学习的潜在优势包括：</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li>指数级加速某些机器学习任务</li>
+                        <li>处理高维数据的能力</li>
+                        <li>探索经典计算难以处理的模型空间</li>
+                        <li>提高模型的表达能力和精度</li>
+                    </ul>
+                    
+                    <div class="code-block" data-language="Python">
+# 使用Qiskit实现量子支持向量机(QSVM)
+from qiskit import Aer, QuantumCircuit
+from qiskit.utils import QuantumInstance
+from qiskit_machine_learning.algorithms import QSVM
+from qiskit_machine_learning.kernels import QuantumKernel
+from qiskit.circuit.library import ZZFeatureMap
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+
+# 生成示例数据
+X, y = make_classification(
+    n_samples=100, n_features=2, n_redundant=0,
+    n_informative=2, random_state=1, n_clusters_per_class=1
+)
+
+# 数据预处理
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+
+# 划分训练集和测试集
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# 创建量子特征映射
+feature_map = ZZFeatureMap(feature_dimension=2, reps=2, entanglement='linear')
+
+# 创建量子核
+quantum_kernel = QuantumKernel(feature_map=feature_map, quantum_instance=QuantumInstance(Aer.get_backend('statevector_simulator')))
+
+# 创建QSVM模型
+qsvm = QSVM(quantum_kernel=quantum_kernel)
+
+# 训练模型
+qsvm.fit(X_train, y_train)
+
+# 预测
+predictions = qsvm.predict(X_test)
+
+# 计算准确率
+accuracy = np.mean(predictions == y_test)
+print(f"QSVM准确率: {accuracy:.4f}")
+
+# 可视化决策边界
+import matplotlib.pyplot as plt
+
+# 创建网格点
+h = 0.02  # 网格步长
+x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+
+# 预测网格点
+Z = qsvm.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+# 绘制决策边界
+plt.figure(figsize=(10, 8))
+plt.contourf(xx, yy, Z, alpha=0.8, cmap=plt.cm.coolwarm)
+plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.coolwarm, edgecolors='k')
+plt.xlabel('特征1')
+plt.ylabel('特征2')
+plt.title('量子支持向量机(QSVM)决策边界')
+plt.show()
+                    </div>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">量子机器学习的基本原理</h4>
+                    <p class="mb-4">量子机器学习利用量子计算的特性来增强机器学习过程：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>量子叠加</strong>：可以同时处理多个数据点或模型参数</li>
+                        <li><strong>量子纠缠</strong>：可以高效表示数据中的复杂关系</li>
+                        <li><strong>量子并行性</strong>：可以并行评估多个假设或模型</li>
+                        <li><strong>量子干涉</strong>：可以增强有用的模式，抑制噪声</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">主要量子机器学习算法</h4>
+                    <p class="mb-4">量子机器学习算法可以分为两大类：</p>
+                    
+                    <h5 class="text-lg font-semibold text-primary mb-2">1. 量子加速的经典算法</h5>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>量子主成分分析(QPCA)</strong>：加速PCA算法，用于降维</li>
+                        <li><strong>量子线性回归</strong>：加速线性回归问题的求解</li>
+                        <li><strong>量子K-means聚类</strong>：加速聚类算法</li>
+                        <li><strong>量子支持向量机(QSVM)</strong>：加速SVM算法</li>
+                    </ul>
+                    
+                    <h5 class="text-lg font-semibold text-primary mb-2">2. 量子特有算法</h5>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>量子神经网络(QNN)</strong>：基于量子电路的神经网络</li>
+                        <li><strong>变分量子本征求解器(VQE)</strong>：用于求解量子系统的基态</li>
+                        <li><strong>量子近似优化算法(QAOA)</strong>：用于解决组合优化问题</li>
+                        <li><strong>量子玻尔兹曼机</strong>：量子版本的玻尔兹曼机</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">量子神经网络(QNN)</h4>
+                    <p class="mb-4">量子神经网络是将经典神经网络的概念扩展到量子计算领域的模型。与经典神经网络相比，QNN具有以下特点：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li>使用量子电路作为网络结构</li>
+                        <li>利用量子门操作进行信息处理</li>
+                        <li>可以处理量子数据或经典数据</li>
+                        <li>参数是量子电路中的旋转角度等</li>
+                    </ul>
+                    
+                    <p class="mb-4">QNN的训练过程通常使用变分量子算法，通过经典优化器调整量子电路的参数，以最小化损失函数。</p>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">量子机器学习的应用场景</h4>
+                    <p class="mb-4">量子机器学习有望在以下领域发挥重要作用：</p>
+                    
+                    <ol class="list-decimal pl-6 mb-4 space-y-2">
+                        <li><strong>金融领域</strong>：投资组合优化、风险评估、欺诈检测</li>
+                        <li><strong>药物发现</strong>：分子结构预测、药物-靶点相互作用</li>
+                        <li><strong>材料科学</strong>：新材料设计、性质预测</li>
+                        <li><strong>图像处理</strong>：图像分类、目标检测、图像生成</li>
+                        <li><strong>自然语言处理</strong>：语言模型、文本分类、机器翻译</li>
+                    </ol>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">量子机器学习的挑战</h4>
+                    <p class="mb-4">尽管量子机器学习有巨大潜力，但仍面临多重挑战：</p>
+                    
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>量子硬件限制</strong>：当前量子计算机的 qubits数量少、错误率高</li>
+                        <li><strong>数据加载瓶颈</strong>：将经典数据加载到量子状态需要O(n)时间</li>
+                        <li><strong>算法开发难度</strong>：设计高效的量子机器学习算法具有挑战性</li>
+                        <li><strong>理论基础不完善</strong>：量子机器学习的理论基础仍在发展中</li>
+                        <li><strong>人才短缺</strong>：同时精通量子计算和机器学习的人才稀缺</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">量子机器学习的未来展望</h4>
+                    <p class="mb-4">随着量子计算技术的不断进步，量子机器学习的未来发展方向包括：</p>
+                    
+                    <ol class="list-decimal pl-6 mb-4 space-y-2">
+                        <li><strong>混合量子-经典算法</strong>：结合量子和经典计算的优势</li>
+                        <li><strong>容错量子机器学习</strong>：开发能够抵抗量子噪声的算法</li>
+                        <li><strong>自动化量子机器学习</strong>：自动设计和优化量子机器学习模型</li>
+                        <li><strong>量子深度学习</strong>：探索更深层次的量子神经网络架构</li>
+                        <li><strong>多模态量子学习</strong>：处理多种类型的数据</li>
+                    </ol>
+                    
+                    <h4 class="text-xl font-bold text-white mb-4">结论</h4>
+                    <p class="mb-4">量子机器学习代表了AI和量子计算交叉融合的前沿方向，尽管目前仍处于发展初期，但已经展现出巨大潜力。随着量子计算硬件的不断进步和算法的持续创新，量子机器学习有望在未来几十年内为各个领域带来革命性突破。现在正是开始学习和研究这一激动人心领域的最佳时机。</p>
+                `,
+                image: "https://p3-doubao-search-sign.byteimg.com/labis/ed1774a9314bb84aace1558331259b85~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1786269530&x-signature=%2B2c1pwGEzSuCYHleDAU%2B7mbyB5Q%3D",
+                tags: ["量子机器学习", "量子计算", "人工智能", "Qiskit"],
+                views: 1324,
+                likes: 108,
+                comments: 31
+            }
+        ];
+        
+        // 分类数据
+        const categories = [
+            { id: "all", name: "全部", count: articles.length },
+            { id: "ai", name: "人工智能", count: articles.filter(a => a.category === "ai").length },
+            { id: "quantum", name: "量子计算", count: articles.filter(a => a.category === "quantum").length },
+            { id: "metaverse", name: "元宇宙", count: articles.filter(a => a.category === "metaverse").length },
+            { id: "datascience", name: "数据科学", count: articles.filter(a => a.category === "datascience").length }
+        ];
+        
+        // DOM元素
+        const articlesContainer = document.getElementById('articles-container');
+        const categoryFilters = document.querySelectorAll('.category-filter');
+        const articleSearch = document.getElementById('article-search');
+        const loadMoreBtn = document.getElementById('load-more');
+        const articleModal = document.getElementById('article-modal');
+        const closeModal = document.getElementById('close-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalLikes = document.getElementById('modal-likes');
+        const modalViews = document.getElementById('modal-views');
+        const modalComments = document.getElementById('modal-comments');
+        const navbar = document.getElementById('navbar');
+        const backToTopBtn = document.getElementById('back-to-top');
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+        const aiAssistantBtn = document.getElementById('ai-assistant-btn');
+        const aiModal = document.getElementById('ai-modal');
+        const closeAiModal = document.getElementById('close-ai-modal');
+        const dismissAi = document.getElementById('dismiss-ai');
+        const aiRecommendations = document.getElementById('ai-recommendations');
+        const learningPath = document.getElementById('learning-path');
+        const contactForm = document.getElementById('contact-form');
+        const progressBar = document.querySelector('.progress-bar');
+        const articleCount = document.getElementById('article-count');
+        const categoryCount = document.getElementById('category-count');
+        const viewCount = document.getElementById('view-count');
+        
+        // 当前状态
+        let currentCategory = 'all';
+        let currentSearch = '';
+        let currentArticles = [...articles];
+        let displayedArticles = 3;
+        let likedArticles = new Set();
+        let viewedArticles = new Set();
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            // 渲染文章卡片
+            renderArticles();
+            
+            // 初始化技能雷达图
+            initSkillsRadar();
+            
+            // 初始化3D背景
+            initThreeBackground();
+            
+            // 初始化滚动动画
+            initScrollReveal();
+            
+            // 初始化数字动画
+            animateNumbers();
+            
+            // 监听滚动事件
+            window.addEventListener('scroll', handleScroll);
+            
+            // 监听分类筛选
+            categoryFilters.forEach(filter => {
+                filter.addEventListener('click', () => {
+                    categoryFilters.forEach(f => f.classList.remove('active'));
+                    filter.classList.add('active');
+                    currentCategory = filter.dataset.category;
+                    filterArticles();
+                });
+            });
+            
+            // 监听搜索
+            articleSearch.addEventListener('input', () => {
+                currentSearch = articleSearch.value.toLowerCase();
+                filterArticles();
+            });
+            
+            // 监听加载更多
+            loadMoreBtn.addEventListener('click', loadMoreArticles);
+            
+            // 监听模态框关闭
+            closeModal.addEventListener('click', () => {
+                articleModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // 监听移动端菜单
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // 监听移动端导航链接点击
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+            
+            // 监听AI助手按钮
+            aiAssistantBtn.addEventListener('click', showAiRecommendations);
+            
+            // 监听AI模态框关闭
+            closeAiModal.addEventListener('click', () => {
+                aiModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+            
+            dismissAi.addEventListener('click', () => {
+                aiModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // 监听联系表单提交
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                submitContactForm();
+            });
+            
+            // 点击模态框外部关闭
+            articleModal.addEventListener('click', (e) => {
+                if (e.target === articleModal) {
+                    articleModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            aiModal.addEventListener('click', (e) => {
+                if (e.target === aiModal) {
+                    aiModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+        
+        // 渲染文章卡片
+        function renderArticles() {
+            articlesContainer.innerHTML = '';
+            
+            const filteredArticles = currentArticles.slice(0, displayedArticles);
+            
+            if (filteredArticles.length === 0) {
+                articlesContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <div class="text-6xl text-primary mb-4">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">未找到相关文章</h3>
+                        <p class="text-gray-400">请尝试其他搜索关键词或分类</p>
+                    </div>
+                `;
+                loadMoreBtn.classList.add('hidden');
+                return;
+            }
+            
+            filteredArticles.forEach(article => {
+                const articleCard = document.createElement('div');
+                articleCard.className = 'article-card relative glass-effect rounded-xl overflow-hidden border border-primary/20 h-full flex flex-col';
+                articleCard.dataset.id = article.id;
+                
+                articleCard.innerHTML = `
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="${article.image}" alt="${article.title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute top-3 right-3 bg-dark-light px-3 py-1 rounded-full text-xs text-primary border border-primary/30">
+                            ${article.categoryName}
+                        </div>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h3 class="text-xl font-bold text-white mb-2 font-mono line-clamp-2">${article.title}</h3>
+                        <p class="text-gray-400 text-sm mb-4 flex-grow line-clamp-3">${article.summary}</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            ${article.tags.map(tag => `
+                                <span class="tag bg-dark px-2 py-1 rounded-full text-xs text-primary border border-primary/30">
+                                    ${tag}
+                                </span>
+                            `).join('')}
+                        </div>
+                        <div class="flex justify-between items-center pt-4 border-t border-primary/10">
+                            <div class="flex items-center space-x-4 text-sm text-gray-400">
+                                <span><i class="far fa-eye mr-1"></i> ${article.views}</span>
+                                <span><i class="far fa-heart mr-1"></i> ${article.likes}</span>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                ${article.date}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                articleCard.addEventListener('click', () => openArticleModal(article));
+                articlesContainer.appendChild(articleCard);
+            });
+            
+            // 显示/隐藏加载更多按钮
+            if (filteredArticles.length < currentArticles.length) {
+                loadMoreBtn.classList.remove('hidden');
+            } else {
+                loadMoreBtn.classList.add('hidden');
+            }
+        }
+        
+        // 筛选文章
+        function filterArticles() {
+            displayedArticles = 3;
+            
+            currentArticles = articles.filter(article => {
+                const matchesCategory = currentCategory === 'all' || article.category === currentCategory;
+                const matchesSearch = article.title.toLowerCase().includes(currentSearch) || 
+                                     article.summary.toLowerCase().includes(currentSearch) ||
+                                     article.tags.some(tag => tag.toLowerCase().includes(currentSearch));
+                
+                return matchesCategory && matchesSearch;
+            });
+            
+            renderArticles();
+        }
+        
+        // 加载更多文章
+        function loadMoreArticles() {
+            displayedArticles += 3;
+            renderArticles();
+        }
+        
+        // 打开文章详情模态框
+        function openArticleModal(article) {
+            modalTitle.textContent = article.title;
+            modalContent.innerHTML = article.content;
+            modalLikes.textContent = article.likes;
+            modalViews.textContent = article.views;
+            modalComments.textContent = article.comments;
+            
+            articleModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // 记录浏览
+            if (!viewedArticles.has(article.id)) {
+                viewedArticles.add(article.id);
+                article.views++;
+                document.querySelector(`.article-card[data-id="${article.id}"] .far.fa-eye`).parentElement.textContent = `👁 ${article.views}`;
+            }
+            
+            // 高亮代码块
+            highlightCodeBlocks();
+        }
+        
+        // 高亮代码块
+        function highlightCodeBlocks() {
+            const codeBlocks = modalContent.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                const code = block.textContent;
+                block.innerHTML = `<pre><code>${code}</code></pre>`;
+            });
+        }
+        
+        // 处理滚动事件
+        function handleScroll() {
+            // 更新进度条
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            progressBar.style.width = `${scrollPercent}%`;
+            
+            // 导航栏背景
+            if (scrollTop > 50) {
+                navbar.classList.add('bg-dark-light', 'shadow-lg');
+                navbar.classList.remove('py-4');
+                navbar.classList.add('py-2');
+            } else {
+                navbar.classList.remove('bg-dark-light', 'shadow-lg');
+                navbar.classList.add('py-4');
+                navbar.classList.remove('py-2');
+            }
+            
+            // 返回顶部按钮
+            if (scrollTop > 300) {
+                backToTopBtn.classList.remove('opacity-0', 'invisible');
+                backToTopBtn.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopBtn.classList.add('opacity-0', 'invisible');
+                backToTopBtn.classList.remove('opacity-100', 'visible');
+            }
+            
+            // 高亮当前导航项
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollTop >= sectionTop - 200) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        // 初始化技能雷达图
+        function initSkillsRadar() {
+            const ctx = document.getElementById('skills-radar').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['人工智能', '量子计算', '元宇宙', '数据科学', 'Web开发', '区块链'],
+                    datasets: [{
+                        label: '技能水平',
+                        data: [90, 75, 80, 85, 70, 65],
+                        backgroundColor: 'rgba(0, 242, 255, 0.2)',
+                        borderColor: 'rgba(0, 242, 255, 1)',
+                        pointBackgroundColor: 'rgba(0, 242, 255, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(0, 242, 255, 1)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            pointLabels: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                font: {
+                                    family: 'Rajdhani'
+                                }
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.5)',
+                                backdropColor: 'transparent',
+                                stepSize: 20,
+                                max: 100
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 初始化3D背景
+        function initThreeBackground() {
+            const container = document.getElementById('canvas-container');
+            
+            // 创建场景
+            const scene = new THREE.Scene();
+            
+            // 创建相机
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 30;
+            
+            // 创建渲染器
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            container.appendChild(renderer.domElement);
+            
+            // 创建粒子系统
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1500;
+            
+            const posArray = new Float32Array(particlesCount * 3);
+            
+            for (let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 100;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.2,
+                color: 0x00f2ff,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            
+            // 创建连线
+            const lineMaterial = new THREE.LineBasicMaterial({
+                color: 0x00f2ff,
+                transparent: true,
+                opacity: 0.2
+            });
+            
+            const lineGeometry = new THREE.BufferGeometry();
+            const linePositions = new Float32Array(particlesCount * 6);
+            lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+            
+            const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+            scene.add(lines);
+            
+            // 动画循环
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                particlesMesh.rotation.x += 0.0005;
+                particlesMesh.rotation.y += 0.0005;
+                
+                // 更新连线
+                const positions = particlesMesh.geometry.attributes.position.array;
+                let lineIndex = 0;
+                
+                for (let i = 0; i < particlesCount; i++) {
+                    const ix = i * 3;
+                    const x = positions[ix];
+                    const y = positions[ix + 1];
+                    const z = positions[ix + 2];
+                    
+                    // 寻找最近的粒子并连线
+                    let minDist = 10;
+                    let closestParticle = null;
+                    
+                    for (let j = i + 1; j < particlesCount; j++) {
+                        const jx = j * 3;
+                        const x2 = positions[jx];
+                        const y2 = positions[jx + 1];
+                        const z2 = positions[jx + 2];
+                        
+                        const dist = Math.sqrt(
+                            Math.pow(x - x2, 2) +
+                            Math.pow(y - y2, 2) +
+                            Math.pow(z - z2, 2)
+                        );
+                        
+                        if (dist < minDist) {
+                            minDist = dist;
+                            closestParticle = j;
+                        }
+                    }
+                    
+                    if (closestParticle !== null && lineIndex < linePositions.length - 6) {
+                        const jx = closestParticle * 3;
+                        
+                        linePositions[lineIndex++] = x;
+                        linePositions[lineIndex++] = y;
+                        linePositions[lineIndex++] = z;
+                        
+                        linePositions[lineIndex++] = positions[jx];
+                        linePositions[lineIndex++] = positions[jx + 1];
+                        linePositions[lineIndex++] = positions[jx + 2];
+                    }
+                }
+                
+                // 填充剩余位置为0
+                while (lineIndex < linePositions.length) {
+                    linePositions[lineIndex++] = 0;
+                    linePositions[lineIndex++] = 0;
+                    linePositions[lineIndex++] = 0;
+                }
+                
+                lines.geometry.attributes.position.needsUpdate = true;
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // 响应窗口大小变化
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        // 初始化滚动动画
+        function initScrollReveal() {
+            ScrollReveal().reveal('.article-card', {
+                delay: 200,
+                distance: '20px',
+                origin: 'bottom',
+                interval: 100
+            });
+            
+            ScrollReveal().reveal('.glass-effect', {
+                delay: 200,
+                distance: '20px',
+                origin: 'bottom'
+            });
+            
+            ScrollReveal().reveal('.timeline-item', {
+                delay: 200,
+                distance: '50px',
+                origin: 'left',
+                interval: 200
+            });
+        }
+        
+        // 数字动画
+        function animateNumbers() {
+            const totalArticles = articles.length;
+            const totalCategories = categories.length - 1; // 减去"全部"分类
+            const totalViews = articles.reduce((sum, article) => sum + article.views, 0);
+            
+            animateNumber(articleCount, 0, totalArticles, 2000);
+            animateNumber(categoryCount, 0, totalCategories, 2000);
+            animateNumber(viewCount, 0, totalViews, 2000);
+        }
+        
+        function animateNumber(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                element.textContent = value;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+        // 显示AI推荐
+        function showAiRecommendations() {
+            // 基于浏览历史生成推荐
+            const viewedArticleIds = Array.from(viewedArticles);
+            let recommendations = [];
+            
+            if (viewedArticleIds.length > 0) {
+                // 获取已浏览文章的分类
+                const viewedCategories = viewedArticleIds.map(id => {
+                    const article = articles.find(a => a.id === id);
+                    return article ? article.category : null;
+                }).filter(Boolean);
+                
+                // 找出最常浏览的分类
+                const categoryCounts = viewedCategories.reduce((acc, category) => {
+                    acc[category] = (acc[category] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                const mostViewedCategory = Object.keys(categoryCounts).reduce((a, b) => 
+                    categoryCounts[a] > categoryCounts[b] ? a : b
+                );
+                
+                // 推荐相同分类的其他文章
+                recommendations = articles
+                    .filter(article => article.category === mostViewedCategory && !viewedArticleIds.includes(article.id))
+                    .slice(0, 3);
+                
+                // 如果推荐不足，添加其他分类的热门文章
+                if (recommendations.length < 3) {
+                    const popularArticles = articles
+                        .filter(article => !viewedArticleIds.includes(article.id) && !recommendations.some(r => r.id === article.id))
+                        .sort((a, b) => b.views - a.views)
+                        .slice(0, 3 - recommendations.length);
+                    
+                    recommendations = [...recommendations, ...popularArticles];
+                }
+            } else {
+                // 如果没有浏览历史，推荐热门文章
+                recommendations = [...articles]
+                    .sort((a, b) => b.views - a.views)
+                    .slice(0, 3);
+            }
+            
+            // 生成学习路径建议
+            let pathSuggestion = '';
+            
+            if (viewedArticleIds.length === 0) {
+                pathSuggestion = "根据您的兴趣，我们建议您从人工智能基础开始学习，然后逐步深入到更专业的领域如量子计算和元宇宙。这种循序渐进的学习路径将帮助您建立坚实的技术基础。";
+            } else if (viewedCategories.includes('ai')) {
+                pathSuggestion = "您对人工智能表现出浓厚兴趣。建议您先深入学习深度学习基础，然后探索生成式AI和大语言模型，最后可以尝试将AI技术应用到特定领域如计算机视觉或自然语言处理。";
+            } else if (viewedCategories.includes('quantum')) {
+                pathSuggestion = "您对量子计算感兴趣。建议您先掌握量子力学基础概念，然后学习量子算法原理，最后可以探索量子机器学习这一前沿交叉领域。";
+            } else if (viewedCategories.includes('metaverse')) {
+                pathSuggestion = "您对元宇宙和Web3技术感兴趣。建议您先学习虚拟现实和增强现实基础，然后探索区块链技术，最后可以研究如何构建去中心化的元宇宙应用。";
+            } else if (viewedCategories.includes('datascience')) {
+                pathSuggestion = "您对数据科学感兴趣。建议您先掌握数据分析和可视化基础，然后深入学习机器学习算法，最后可以探索深度学习和大数据处理技术。";
+            }
+            
+            // 渲染推荐内容
+            aiRecommendations.innerHTML = '';
+            
+            recommendations.forEach(article => {
+                const recItem = document.createElement('div');
+                recItem.className = 'glass-effect rounded-lg p-4 border border-secondary/20 hover:border-secondary/50 transition-all cursor-pointer';
+                recItem.dataset.id = article.id;
+                
+                recItem.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 rounded-lg overflow-hidden mr-4 flex-shrink-0">
+                            <img src="${article.image}" alt="${article.title}" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-1 line-clamp-1">${article.title}</h4>
+                            <p class="text-sm text-gray-400 line-clamp-2">${article.summary}</p>
+                            <div class="flex items-center mt-2 text-xs text-gray-500">
+                                <span class="bg-dark-light px-2 py-1 rounded-full text-primary mr-2">${article.categoryName}</span>
+                                <span><i class="far fa-eye mr-1"></i> ${article.views}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                recItem.addEventListener('click', () => {
+                    const article = articles.find(a => a.id === parseInt(recItem.dataset.id));
+                    if (article) {
+                        openArticleModal(article);
+                        aiModal.classList.add('hidden');
+                    }
+                });
+                
+                aiRecommendations.appendChild(recItem);
+            });
+            
+            learningPath.textContent = pathSuggestion;
+            
+            // 显示模态框
+            aiModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 提交联系表单
+        function submitContactForm() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            if (!name || !email || !subject || !message) {
+                alert('请填写所有必填字段');
+                return;
+            }
+            
+            // 模拟表单提交
+            const submitBtn = contactForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>发送中...';
+            
+            setTimeout(() => {
+                contactForm.reset();
+                submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>发送成功';
+                
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }, 2000);
+            }, 1500);
+        }
+        
+        // 返回顶部按钮点击事件
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html>
