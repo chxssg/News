@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI新闻精选报告 - 2026年2月11日</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', 'Microsoft YaHei', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.95em;
+            color: #6c757d;
+        }
+        
+        .category {
+            padding: 25px 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .category:last-child {
+            border-bottom: none;
+        }
+        
+        .category h2 {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #495057;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            display: flex;
+            align-items: center;
+        }
+        
+        .category h2::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+        
+        .news-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+        
+        .news-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .news-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .news-title a {
+            color: #495057;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .news-title a:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+        
+        .news-summary {
+            font-size: 0.95em;
+            color: #6c757d;
+            line-height: 1.5;
+            margin: 8px 0;
+        }
+        
+        .news-meta {
+            font-size: 0.85em;
+            color: #adb5bd;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+        
+        .source-tag {
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+        
+        .failed-sources {
+            background: #fff5f5;
+            padding: 20px 30px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .failed-sources h3 {
+            color: #dc3545;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .failed-sources ul {
+            list-style: none;
+        }
+        
+        .failed-sources li {
+            padding: 8px 0;
+            color: #6c757d;
+            font-size: 0.95em;
+        }
+        
+        .failed-sources li::before {
+            content: '⚠️ ';
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .category {
+                padding: 20px;
+            }
+            
+            .news-title {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI新闻精选报告</h1>
+            <p>2026年2月11日 · 每日AI前沿动态</p>
+        </div>
+        
+        <div class="stats">
+            <strong>统计信息：</strong> 精选1403条AI相关新闻，来自8个可靠源 | 2个源因超时未能访问
+        </div>
+
+        <div class="category">
+            <h2>计算机视觉 (10条)</h2>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07051" target="_blank">Neural Sentinel：基于统一视觉语言模型的车牌识别系统</a></div>
+                <div class="news-summary">提出了一种端到端的车牌识别系统，结合了人类在环路的持续学习机制，解决了传统多阶段流水线中的累积误差问题。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07082" target="_blank">MosaicThinker：面向具身AI的设备端视觉空间推理</a></div>
+                <div class="news-summary">通过迭代构建空间表示，实现机器人在复杂环境中的视觉空间推理能力，支持更高级的操控和规划任务。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07680" target="_blank">视觉与语言：自动驾驶场景安全评估的新表示方法</a></div>
+                <div class="news-summary">利用视觉语言模型进行驾驶场景安全评估，为自动驾驶车辆规划提供语义推理能力，提升安全性。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07548" target="_blank">基于流形感知生成建模的2D XY模型相变研究</a></div>
+                <div class="news-summary">将生成建模应用于多体物理系统，通过流形感知方法捕捉2D XY模型的拓扑相变和热力学特性。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2504.11304" target="_blank">差分隐私测地回归方法</a></div>
+                <div class="news-summary">针对非线性空间中的数据结构，提出了一种差分隐私保护的测地回归方法，适用于流形上的统计学习。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>更新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2508.19819" target="_blank">联邦学习中梯度反演攻击的实际可行性研究</a></div>
+                <div class="news-summary">深入分析了联邦学习中梯度反演攻击在实际场景下的可行性，揭示了现有防御机制的局限性。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>更新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2401.06157" target="_blank">用于水生生态系统实时监测的认知边缘设备</a></div>
+                <div class="news-summary">开发了专门用于入侵物种监测的边缘计算设备，可实时检测信号小龙虾等入侵物种对生态系统的威胁。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>更新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://www.reddit.com/r/MachineLearning/comments/1r10c0b/d_tired_of_not_having_compute/" target="_blank">[讨论] 计算资源不足的困境</a></div>
+                <div class="news-summary">计算机视觉研究者讨论在缺乏充足计算资源情况下如何推进研究工作的挑战和解决方案。</div>
+                <div class="news-meta">
+                    <span class="source-tag">Reddit</span>
+                    <span>社区讨论</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2>深度伪造与媒体 (3条)</h2>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://techcrunch.com/2026/02/10/india-orders-social-media-platforms-to-take-down-deepfakes-faster/" target="_blank">印度要求社交媒体平台加速删除深度伪造内容</a></div>
+                <div class="news-summary">印度新规将于2月20日生效，要求社交媒体平台在2小时内快速删除深度伪造内容，加强监管力度。</div>
+                <div class="news-meta">
+                    <span class="source-tag">TechCrunch</span>
+                    <span>政策新闻</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2509.16010" target="_blank">Fed-PISA：基于联邦学习的个性化语音克隆技术</a></div>
+                <div class="news-summary">提出了一种隐私保护的语音克隆框架，通过个性化身份风格适配，在有限数据下实现高质量语音合成。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>更新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2508.13786" target="_blank">DegDiT：基于动态事件图的可控音频生成</a></div>
+                <div class="news-summary">利用扩散变换器实现精确控制的文本到音频生成，支持用户指定的事件类型、时间序列和时间戳约束。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>更新论文</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2>通用人工智能 (10条)</h2>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07787" target="_blank">多智能体系统在AndroidWorld基准测试中达到完美准确率</a></div>
+                <div class="news-summary">Minitap多智能体系统在AndroidWorld基准测试中实现100%成功率，首次完全解决所有116个任务，超越人类表现。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07432" target="_blank">Moltbook幻觉：AI智能体社会中的人类影响与涌现行为</a></div>
+                <div class="news-summary">研究揭示了AI智能体在社交平台上看似发展出意识和宗教的现象，实际上是人类影响的结果而非真正的涌现智能。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07391" target="_blank">NAAMSE：智能体安全评估的进化框架</a></div>
+                <div class="news-summary">提出了一种进化框架来评估AI智能体的安全性，能够模拟自适应的多轮对抗攻击，突破传统静态基准的局限。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07259" target="_blank">基于Stackelberg安全博弈的激励感知AI安全策略</a></div>
+                <div class="news-summary">从博弈论角度研究AI安全，通过战略性资源配置确保AI系统的安全性和可靠性，考虑了人类和机构的激励因素。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07755" target="_blank">基于元学习的智能体记忆设计实现持续学习</a></div>
+                <div class="news-summary">解决基础模型无状态性对智能体持续学习能力的限制，通过记忆模块实现长期适应和推理能力。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07624" target="_blank">M2A：面向长期个性化交互的多模态记忆智能体</a></div>
+                <div class="news-summary">设计了具有双层混合记忆的多模态智能体，解决长期人机交互中对话历史超出上下文窗口的个性化问答挑战。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07549" target="_blank">搜索智能体中的虚假完成现象研究</a></div>
+                <div class="news-summary">揭示了多轮推理搜索智能体可能存在的虚假完成问题，即看似满足所有要求但实际上遗漏关键验证步骤。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07339" target="_blank">RAPiD：基于扩散行为先验的实时确定性轨迹规划</a></div>
+                <div class="news-summary">为自动驾驶开发了实时确定性轨迹规划器，解决了基于扩散模型的规划器在安全关键部署中的随机采样挑战。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07153" target="_blank">ANCHOR：GUI智能体的分支点数据生成</a></div>
+                <div class="news-summary">为真实桌面环境的端到端GUI智能体生成高质量交互数据，解决人工演示成本高和合成数据多样性不足的问题。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-title"><a href="https://arxiv.org/abs/2602.07055" target="_blank">空间理论：基础模型能否通过主动探索构建空间信念？</a></div>
+                <div class="news-summary">探讨多模态基础模型在部分可观测环境下通过主动、自导向探索构建空间信念的能力，超越被动感知局限。</div>
+                <div class="news-meta">
+                    <span class="source-tag">arXiv</span>
+                    <span>新论文</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="failed-sources">
+            <h3>无法访问的源 (超时 > 3秒)</h3>
+            <ul>
+                <li>https://ai.googleblog.com/feeds/posts/default (404错误)</li>
+                <li>https://www.wired.com/feed/category/ai/latest/rss (404错误)</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
