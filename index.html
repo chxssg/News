@@ -232,12 +232,14 @@
             
             const iconClass = getFileIcon(file.filename);
             
-            // 提取时间显示
-            const timeStr = file.modifiedFormatted || formatDate(new Date(file.modified));
+            // 提取时间显示（检测是否为移动设备）
+            const isMobile = window.innerWidth < 768;
+            const timeStr = file.modifiedFormatted || formatDate(new Date(file.modified), isMobile);
             const titleStr = file.title || file.filename.replace('.html', '');
             
-            // 把时间放在标题前面
-            const displayTitle = `[${timeStr}] ${titleStr}`;
+            // 移动端：时间和标题分开显示
+            // 桌面端：时间放在标题前面
+            const displayTitle = isMobile ? titleStr : `[${timeStr}] ${titleStr}`;
             
             row.innerHTML = `
                 <a href="./${file.filename}" target="_blank" rel="noopener noreferrer" class="block p-4 hover:bg-gray-50 transition-colors">
@@ -246,14 +248,25 @@
                             <i class="fa ${iconClass}"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h3 class="text-base font-medium text-gray-800 truncate" title="${escapeHtml(displayTitle)}">
-                                ${escapeHtml(displayTitle)}
-                            </h3>
-                            <p class="text-xs text-secondary mt-0.5 truncate">
-                                <span class="mr-3">${file.filename}</span>
-                                <span class="text-gray-400">|</span>
-                                <span class="ml-3">${file.sizeFormatted || formatFileSize(file.size)}</span>
-                            </p>
+                            ${isMobile ? `
+                                <h3 class="text-base font-medium text-gray-800 truncate" title="${escapeHtml(titleStr)}">
+                                    ${escapeHtml(titleStr)}
+                                </h3>
+                                <p class="text-xs text-secondary mt-0.5 flex items-center gap-2">
+                                    <span class="text-primary font-medium">${timeStr}</span>
+                                    <span class="text-gray-300">|</span>
+                                    <span>${file.sizeFormatted || formatFileSize(file.size)}</span>
+                                </p>
+                            ` : `
+                                <h3 class="text-base font-medium text-gray-800 truncate" title="${escapeHtml(displayTitle)}">
+                                    ${escapeHtml(displayTitle)}
+                                </h3>
+                                <p class="text-xs text-secondary mt-0.5 truncate">
+                                    <span class="mr-3">${file.filename}</span>
+                                    <span class="text-gray-400">|</span>
+                                    <span class="ml-3">${file.sizeFormatted || formatFileSize(file.size)}</span>
+                                </p>
+                            `}
                         </div>
                         <div class="flex-shrink-0 text-secondary">
                             <i class="fa fa-chevron-right text-sm"></i>
@@ -400,8 +413,8 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // 格式化日期
-        function formatDate(date) {
+        // 格式化日期（支持简短格式）
+        function formatDate(date, short = false) {
             if (!date || isNaN(date.getTime())) return '未知时间';
             const now = new Date();
             const diff = now - date;
@@ -409,6 +422,16 @@
             const hours = Math.floor(diff / 3600000);
             const days = Math.floor(diff / 86400000);
             
+            if (short) {
+                // 移动端简短格式
+                if (minutes < 1) return '刚刚';
+                if (minutes < 60) return `${minutes}分前`;
+                if (hours < 24) return `${hours}小时前`;
+                if (days < 7) return `${days}天前`;
+                return `${date.getMonth() + 1}/${date.getDate()}`;
+            }
+            
+            // 桌面端完整格式
             if (minutes < 1) return '刚刚';
             if (minutes < 60) return `${minutes} 分钟前`;
             if (hours < 24) return `${hours} 小时前`;
