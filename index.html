@@ -174,8 +174,11 @@
         function parseGitDate(dateStr) {
             if (!dateStr) return null;
             // 将 Git 格式转换为 ISO 格式
-            // 替换空格为 T，并在时区偏移中添加冒号
-            const isoStr = dateStr.replace(' ', 'T').replace(/([+-])(\d{2})(\d{2})$/, '$1$2:$3');
+            // 替换日期和时间之间的空格为 T，并移除时区前的空格
+            // Git: 2026-02-11 01:38:45 +0800 -> ISO: 2026-02-11T01:38:45+08:00
+            const isoStr = dateStr
+                .replace(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}) ([+-]\d{4})$/, '$1T$2$3')
+                .replace(/([+-])(\d{2})(\d{2})$/, '$1$2:$3');
             const date = new Date(isoStr);
             return isNaN(date.getTime()) ? null : date;
         }
