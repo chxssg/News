@@ -3,7 +3,7 @@
   "filename": "ai_news_report_chinese.html",
   "title": "AI新闻精选报告 - 2026年2月11日",
   "size": 17876,
-  "modified": "2026-02-11T01:38:45 +08:00",
+  "modified": "2026-02-11T01:38:45+08:00",
   "commitMessage": "Add files via upload"
 }
 ,
@@ -11,7 +11,7 @@
   "filename": "tech_news_20260211_023845.html",
   "title": "科技新闻日报 - 2026年02月11日",
   "size": 12485,
-  "modified": "2026-02-11T09:36:02 +08:00",
+  "modified": "2026-02-11T09:36:02+08:00",
   "commitMessage": "Add tech news report 2026-02-11"
 }
 ,
@@ -19,7 +19,7 @@
   "filename": "tech_news_20260211_104736.html",
   "title": "科技新闻日报 - 2026年02月11日",
   "size": 11606,
-  "modified": "2026-02-11T11:28:21 +08:00",
+  "modified": "2026-02-11T11:28:21+08:00",
   "commitMessage": "Add latest tech news reports and update index with timestamps"
 }
 ,
@@ -27,7 +27,7 @@
   "filename": "tech_news_20260211_110745.html",
   "title": "科技新闻日报 - 2026年02月11日",
   "size": 8509,
-  "modified": "2026-02-11T11:28:21 +08:00",
+  "modified": "2026-02-11T11:28:21+08:00",
   "commitMessage": "Add latest tech news reports and update index with timestamps"
 }
 ,
@@ -35,7 +35,7 @@
   "filename": "tech_news_20260211_224500.html",
   "title": "科技新闻日报 - 2026年02月11日",
   "size": 27005,
-  "modified": "2026-02-11T23:24:19 +08:00",
+  "modified": "2026-02-11T23:24:19+08:00",
   "commitMessage": "优化 index.html：使用 GitHub Actions 预生成 files.json 实现瞬时加载"
 }
 ,
@@ -43,7 +43,7 @@
   "filename": "tech_news_20260211_2357.html",
   "title": "科技新闻日报 - 2026年2月11日",
   "size": 17754,
-  "modified": "2026-02-12T00:09:20 +08:00",
+  "modified": "2026-02-12T00:09:20+08:00",
   "commitMessage": "🤖 添加 2026-02-11 科技新闻报告"
 }
 
