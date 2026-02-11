@@ -1,37 +1,42 @@
 [
-  {
-    "filename": "ai_news_report_chinese.html",
-    "title": "AI新闻精选报告 - 2026年2月11日",
-    "size": 17876,
-    "modified": "2026-02-11T22:38:45+08:00",
-    "commitMessage": "Add latest tech news reports and update index with timestamps"
-  },
-  {
-    "filename": "tech_news_20260211_023845.html",
-    "title": "科技新闻日报 - 2026年02月11日 02:38:45",
-    "size": 12485,
-    "modified": "2026-02-11T02:38:45+08:00",
-    "commitMessage": "Add tech news report 2026-02-11"
-  },
-  {
-    "filename": "tech_news_20260211_104736.html",
-    "title": "科技新闻日报 - 2026年02月11日 10:47:36",
-    "size": 11606,
-    "modified": "2026-02-11T10:47:36+08:00",
-    "commitMessage": "Add tech news report 2026-02-11"
-  },
-  {
-    "filename": "tech_news_20260211_110745.html",
-    "title": "科技新闻日报 - 2026年02月11日 11:07:45",
-    "size": 8509,
-    "modified": "2026-02-11T11:07:45+08:00",
-    "commitMessage": "Add tech news report 2026-02-11"
-  },
-  {
-    "filename": "tech_news_20260211_224500.html",
-    "title": "科技新闻日报 - 2026年02月11日 22:45:00",
-    "size": 27005,
-    "modified": "2026-02-11T22:45:00+08:00",
-    "commitMessage": "优化 index.html：使用 GitHub Actions 预生成 files.json 实现瞬时加载"
-  }
+{
+  "filename": "ai_news_report_chinese.html",
+  "title": "AI新闻精选报告 - 2026年2月11日",
+  "size": 17876,
+  "modified": "2026-02-11 01:38:45 +0800",
+  "commitMessage": "Add files via upload"
+}
+,
+{
+  "filename": "tech_news_20260211_023845.html",
+  "title": "科技新闻日报 - 2026年02月11日",
+  "size": 12485,
+  "modified": "2026-02-11 09:36:02 +0800",
+  "commitMessage": "Add tech news report 2026-02-11"
+}
+,
+{
+  "filename": "tech_news_20260211_104736.html",
+  "title": "科技新闻日报 - 2026年02月11日",
+  "size": 11606,
+  "modified": "2026-02-11 11:28:21 +0800",
+  "commitMessage": "Add latest tech news reports and update index with timestamps"
+}
+,
+{
+  "filename": "tech_news_20260211_110745.html",
+  "title": "科技新闻日报 - 2026年02月11日",
+  "size": 8509,
+  "modified": "2026-02-11 11:28:21 +0800",
+  "commitMessage": "Add latest tech news reports and update index with timestamps"
+}
+,
+{
+  "filename": "tech_news_20260211_224500.html",
+  "title": "科技新闻日报 - 2026年02月11日",
+  "size": 27005,
+  "modified": "2026-02-11 23:24:19 +0800",
+  "commitMessage": "优化 index.html：使用 GitHub Actions 预生成 files.json 实现瞬时加载"
+}
+
 ]
