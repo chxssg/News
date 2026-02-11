@@ -106,7 +106,8 @@
         const CONFIG = {
             FILES_JSON: './files.json',
             CACHE_KEY: 'news_html_files_cache',
-            CACHE_EXPIRY: 30 * 60 * 1000 // 30分钟缓存
+            CACHE_EXPIRY: 30 * 60 * 1000, // 30分钟缓存
+            CACHE_VERSION: '2' // 缓存版本，修改此值可强制刷新缓存
         };
 
         // 全局状态
@@ -390,7 +391,8 @@
             try {
                 const data = {
                     files: files,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    version: CONFIG.CACHE_VERSION
                 };
                 localStorage.setItem(CONFIG.CACHE_KEY, JSON.stringify(data));
             } catch (error) {
@@ -404,6 +406,12 @@
                 const cached = localStorage.getItem(CONFIG.CACHE_KEY);
                 if (cached) {
                     const data = JSON.parse(cached);
+                    // 检查缓存版本
+                    if (data.version !== CONFIG.CACHE_VERSION) {
+                        console.log('缓存版本不匹配，清除缓存');
+                        localStorage.removeItem(CONFIG.CACHE_KEY);
+                        return null;
+                    }
                     // 检查缓存是否过期
                     const now = new Date().getTime();
                     const cachedTime = new Date(data.timestamp).getTime();
