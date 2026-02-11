@@ -82,10 +82,10 @@
         </div>
 
         <!-- 文件列表容器 -->
-        <main class="max-w-6xl mx-auto">
-            <div id="file-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <main class="max-w-4xl mx-auto">
+            <div id="file-list" class="space-y-3">
                 <!-- 加载动画 -->
-                <div id="loading-state" class="col-span-full text-center py-16">
+                <div id="loading-state" class="text-center py-16">
                     <div class="inline-flex flex-col items-center">
                         <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
                         <p class="text-lg text-secondary animate-pulse">正在加载文件列表...</p>
@@ -127,7 +127,7 @@
             // 显示加载状态
             if (!forceRefresh) {
                 fileListContainer.innerHTML = `
-                    <div class="col-span-full text-center py-16">
+                    <div class="text-center py-16">
                         <div class="inline-flex flex-col items-center">
                             <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
                             <p class="text-lg text-secondary animate-pulse">正在加载文件列表...</p>
@@ -225,62 +225,44 @@
             });
         }
 
-        // 创建文件卡片
+        // 创建文件行
         function createFileCard(file) {
-            const card = document.createElement('div');
-            card.className = 'bg-white rounded-lg shadow-md overflow-hidden card-hover';
+            const row = document.createElement('div');
+            row.className = 'bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-100';
             
             const iconClass = getFileIcon(file.filename);
             
-            card.innerHTML = `
-                <div class="p-6">
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xl">
+            // 提取时间显示
+            const timeStr = file.modifiedFormatted || formatDate(new Date(file.modified));
+            const titleStr = file.title || file.filename.replace('.html', '');
+            
+            // 把时间放在标题前面
+            const displayTitle = `[${timeStr}] ${titleStr}`;
+            
+            row.innerHTML = `
+                <a href="./${file.filename}" target="_blank" rel="noopener noreferrer" class="block p-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white">
                             <i class="fa ${iconClass}"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <a href="./${file.filename}" target="_blank" rel="noopener noreferrer" class="block group">
-                                <h3 class="text-lg font-semibold text-gray-800 group-hover:text-primary transition-colors truncate" title="${escapeHtml(file.title)}">
-                                    ${escapeHtml(file.title)}
-                                </h3>
-                            </a>
-                            <p class="text-sm text-secondary mt-1 truncate" title="${file.filename}">
-                                ${file.filename}
+                            <h3 class="text-base font-medium text-gray-800 truncate" title="${escapeHtml(displayTitle)}">
+                                ${escapeHtml(displayTitle)}
+                            </h3>
+                            <p class="text-xs text-secondary mt-0.5 truncate">
+                                <span class="mr-3">${file.filename}</span>
+                                <span class="text-gray-400">|</span>
+                                <span class="ml-3">${file.sizeFormatted || formatFileSize(file.size)}</span>
                             </p>
                         </div>
-                    </div>
-                    
-                    <div class="mt-4 flex items-center justify-between text-sm text-secondary">
-                        <div class="flex items-center gap-4">
-                            <span class="flex items-center gap-1" title="文件大小">
-                                <i class="fa fa-file-o"></i>
-                                ${file.sizeFormatted || formatFileSize(file.size)}
-                            </span>
-                            <span class="flex items-center gap-1" title="最后修改时间">
-                                <i class="fa fa-clock-o"></i>
-                                ${file.modifiedFormatted}
-                            </span>
+                        <div class="flex-shrink-0 text-secondary">
+                            <i class="fa fa-chevron-right text-sm"></i>
                         </div>
                     </div>
-                    
-                    ${file.commitMessage ? `
-                    <div class="mt-3 pt-3 border-t border-gray-100">
-                        <p class="text-xs text-secondary truncate" title="${escapeHtml(file.commitMessage)}">
-                            <i class="fa fa-comment-o mr-1"></i>
-                            ${escapeHtml(file.commitMessage)}
-                        </p>
-                    </div>
-                    ` : ''}
-                </div>
-                <div class="px-6 py-3 bg-gray-50 border-t border-gray-100">
-                    <a href="./${file.filename}" target="_blank" rel="noopener noreferrer" class="text-primary text-sm font-medium hover:text-accent transition-colors flex items-center gap-1">
-                        查看文件
-                        <i class="fa fa-external-link text-xs"></i>
-                    </a>
-                </div>
+                </a>
             `;
             
-            return card;
+            return row;
         }
 
         // 获取文件图标
@@ -297,22 +279,13 @@
         function showWaitingState() {
             const fileListContainer = document.getElementById('file-list');
             fileListContainer.innerHTML = `
-                <div class="col-span-full text-center py-16 bg-white rounded-lg shadow">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-8 text-center">
                     <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
                         <i class="fa fa-hourglass-half text-3xl text-blue-500"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-800 mb-2">请等待首次生成</h3>
                     <p class="text-gray-600 mb-4">文件索引正在准备中，请稍后刷新页面。</p>
-                    <div class="space-y-2 text-sm text-gray-500">
-                        <p>首次部署后需要等待 GitHub Actions 完成：</p>
-                        <ol class="list-decimal list-inside space-y-1 max-w-md mx-auto text-left">
-                            <li>前往仓库的 Actions 页面</li>
-                            <li>找到 "Update Index" 工作流</li>
-                            <li>点击 "Run workflow" 手动触发</li>
-                            <li>或等待每小时自动执行</li>
-                        </ol>
-                    </div>
-                    <button onclick="refreshFiles()" class="mt-6 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    <button onclick="refreshFiles()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors">
                         <i class="fa fa-refresh mr-2"></i>重新加载
                     </button>
                 </div>
@@ -323,7 +296,7 @@
         function showEmptyState() {
             const fileListContainer = document.getElementById('file-list');
             fileListContainer.innerHTML = `
-                <div class="col-span-full text-center py-16 bg-white rounded-lg shadow">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-8 text-center">
                     <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
                         <i class="fa fa-folder-open-o text-3xl text-gray-400"></i>
                     </div>
@@ -340,7 +313,7 @@
         function showErrorState(errorMessage) {
             const fileListContainer = document.getElementById('file-list');
             fileListContainer.innerHTML = `
-                <div class="col-span-full text-center py-16 bg-white rounded-lg shadow">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-8 text-center">
                     <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
                         <i class="fa fa-exclamation-circle text-3xl text-red-500"></i>
                     </div>
