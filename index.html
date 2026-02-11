@@ -22,7 +22,9 @@
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.5s ease-in-out',
-                        'slide-up': 'slideUp 0.5s ease-out'
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 3s linear infinite'
                     },
                     keyframes: {
                         fadeIn: {
@@ -56,19 +58,38 @@
     <div class="container mx-auto px-4 py-12">
         <!-- 页面标题 -->
         <header class="text-center mb-12 animate-fade-in">
-            <div class="mb-4"></div>
             <h1 class="text-4xl md:text-5xl font-bold text-neutral-dark mb-3">菲尔兹科技新闻报告</h1>
             <p class="text-lg text-secondary max-w-2xl mx-auto">
                 以下内容均为 AI 自动生成，可供参考，请谨慎阅读 ：）
             </p>
         </header>
 
+        <!-- 控制栏 -->
+        <div class="flex justify-between items-center mb-6 max-w-6xl mx-auto">
+            <div class="text-sm text-secondary">
+                <span id="file-count">正在加载...</span>
+            </div>
+            <div class="flex gap-2">
+                <button id="refresh-btn" onclick="refreshFiles()" class="px-4 py-2 bg-white text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-colors duration-200 flex items-center gap-2 text-sm">
+                    <i class="fa fa-refresh"></i>
+                    刷新列表
+                </button>
+                <button id="clear-cache-btn" onclick="clearCache()" class="px-4 py-2 bg-white text-secondary border border-secondary rounded-lg hover:bg-secondary hover:text-white transition-colors duration-200 flex items-center gap-2 text-sm">
+                    <i class="fa fa-trash-o"></i>
+                    清除缓存
+                </button>
+            </div>
+        </div>
+
         <!-- 文件列表容器 -->
-        <main>
+        <main class="max-w-6xl mx-auto">
             <div id="file-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- 文件卡片将通过JavaScript动态生成 -->
-                <div class="animate-pulse col-span-full text-center py-12">
-                    <p class="text-lg text-secondary">正在扫描目录中的HTML文件...</p>
+                <!-- 加载动画 -->
+                <div id="loading-state" class="col-span-full text-center py-16">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <p class="text-lg text-secondary animate-pulse">正在加载文件列表...</p>
+                    </div>
                 </div>
             </div>
         </main>
@@ -76,62 +97,185 @@
         <!-- 页脚 -->
         <footer class="mt-16 text-center text-secondary text-sm">
             <p>AI改变世界</p>
+            <p id="cache-status" class="mt-2 text-xs opacity-60"></p>
         </footer>
     </div>
 
     <script>
+        // 配置
+        const CONFIG = {
+            FILES_JSON: './files.json',
+            CACHE_KEY: 'news_html_files_cache',
+            CACHE_EXPIRY: 30 * 60 * 1000 // 30分钟缓存
+        };
+
+        // 全局状态
+        let isLoading = false;
+        let fileData = [];
+
         // DOM加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
-            // 获取文件列表容器
-            const fileListContainer = document.getElementById('file-list');
-            
-            // 尝试从JSON文件获取HTML文件列表
-            fetchHTMLFiles()
-                .then(files => {
-                    // 清空加载状态
-                    fileListContainer.innerHTML = '';
-                    
-                    // 如果没有找到HTML文件
-                    if (files.length === 0) {
-                        fileListContainer.innerHTML = `
-                            <div class="col-span-full text-center py-12 bg-white rounded-lg shadow">
-                                <h3 class="text-xl font-semibold text-gray-800 mb-2">未找到HTML文件</h3>
-                                <p class="text-gray-600">当前目录下没有发现其他HTML文件。</p>
-                            </div>
-                        `;
-                        return;
-                    }
-                    
-                    // 生成文件卡片
-                    files.forEach((file, index) => {
-                        // 为每个卡片添加延迟动画效果
-                        setTimeout(() => {
-                            const fileCard = createFileCard(file);
-                            fileCard.classList.add('animate-slide-up');
-                            fileListContainer.appendChild(fileCard);
-                        }, index * 100);
-                    });
-                })
-                .catch(error => {
-                    console.error('获取HTML文件列表失败:', error);
-                    fileListContainer.innerHTML = `
-                        <div class="col-span-full text-center py-12 bg-white rounded-lg shadow">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">加载失败</h3>
-                            <p class="text-gray-600">无法获取HTML文件列表，请刷新页面重试。</p>
-                        </div>
-                    `;
-                });
+            loadFiles();
         });
 
-        // 创建文件卡片元素
+        // 加载文件列表
+        async function loadFiles(forceRefresh = false) {
+            const fileListContainer = document.getElementById('file-list');
+            const fileCountEl = document.getElementById('file-count');
+            const cacheStatusEl = document.getElementById('cache-status');
+
+            // 显示加载状态
+            if (!forceRefresh) {
+                fileListContainer.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                            <p class="text-lg text-secondary animate-pulse">正在加载文件列表...</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            isLoading = true;
+
+            try {
+                // 检查缓存
+                if (!forceRefresh) {
+                    const cached = getCachedData();
+                    if (cached && cached.files && cached.files.length > 0) {
+                        console.log('使用缓存数据');
+                        fileData = cached.files;
+                        renderFiles(fileData);
+                        fileCountEl.textContent = `共 ${fileData.length} 个文件`;
+                        cacheStatusEl.textContent = `缓存时间: ${formatTime(new Date(cached.timestamp))}`;
+                        isLoading = false;
+                        return;
+                    }
+                }
+
+                // 从 files.json 获取数据
+                const response = await fetch(CONFIG.FILES_JSON);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        // files.json 不存在，显示等待提示
+                        showWaitingState();
+                        fileCountEl.textContent = '未生成';
+                        return;
+                    }
+                    throw new Error(`获取文件列表失败: ${response.status}`);
+                }
+                
+                const files = await response.json();
+                
+                if (Array.isArray(files) && files.length > 0) {
+                    // 处理文件数据
+                    const enrichedFiles = files.map(file => ({
+                        ...file,
+                        sizeFormatted: formatFileSize(file.size),
+                        modifiedFormatted: file.modified ? formatDate(new Date(file.modified)) : '未知时间'
+                    }));
+                    
+                    // 按时间倒序排列
+                    enrichedFiles.sort((a, b) => new Date(b.modified || 0) - new Date(a.modified || 0));
+                    
+                    // 缓存数据
+                    cacheData(enrichedFiles);
+                    
+                    fileData = enrichedFiles;
+                    renderFiles(fileData);
+                    fileCountEl.textContent = `共 ${fileData.length} 个文件`;
+                    cacheStatusEl.textContent = '数据已更新';
+                } else {
+                    showEmptyState();
+                    fileCountEl.textContent = '共 0 个文件';
+                }
+            } catch (error) {
+                console.error('加载文件失败:', error);
+                
+                // 尝试使用缓存作为备用
+                const cached = getCachedData();
+                if (cached && cached.files && cached.files.length > 0) {
+                    console.log('加载失败，使用缓存数据');
+                    fileData = cached.files;
+                    renderFiles(fileData);
+                    fileCountEl.textContent = `共 ${fileData.length} 个文件 (缓存)`;
+                    cacheStatusEl.textContent = `缓存时间: ${formatTime(new Date(cached.timestamp))} (加载失败)`;
+                    showNotification('加载失败，显示缓存数据', 'warning');
+                } else {
+                    showErrorState(error.message);
+                    fileCountEl.textContent = '加载失败';
+                }
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // 渲染文件列表
+        function renderFiles(files) {
+            const fileListContainer = document.getElementById('file-list');
+            fileListContainer.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                setTimeout(() => {
+                    const fileCard = createFileCard(file);
+                    fileCard.classList.add('animate-slide-up');
+                    fileListContainer.appendChild(fileCard);
+                }, index * 50);
+            });
+        }
+
+        // 创建文件卡片
         function createFileCard(file) {
             const card = document.createElement('div');
             card.className = 'bg-white rounded-lg shadow-md overflow-hidden card-hover';
             
+            const iconClass = getFileIcon(file.filename);
+            
             card.innerHTML = `
                 <div class="p-6">
-                    <a href="${file.filename}" target="_blank" rel="noopener noreferrer" class="block">
-                        <h3 class="text-lg font-semibold text-gray-800">${file.title}</h3>
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xl">
+                            <i class="fa ${iconClass}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <a href="./${file.filename}" target="_blank" rel="noopener noreferrer" class="block group">
+                                <h3 class="text-lg font-semibold text-gray-800 group-hover:text-primary transition-colors truncate" title="${escapeHtml(file.title)}">
+                                    ${escapeHtml(file.title)}
+                                </h3>
+                            </a>
+                            <p class="text-sm text-secondary mt-1 truncate" title="${file.filename}">
+                                ${file.filename}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 flex items-center justify-between text-sm text-secondary">
+                        <div class="flex items-center gap-4">
+                            <span class="flex items-center gap-1" title="文件大小">
+                                <i class="fa fa-file-o"></i>
+                                ${file.sizeFormatted || formatFileSize(file.size)}
+                            </span>
+                            <span class="flex items-center gap-1" title="最后修改时间">
+                                <i class="fa fa-clock-o"></i>
+                                ${file.modifiedFormatted}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    ${file.commitMessage ? `
+                    <div class="mt-3 pt-3 border-t border-gray-100">
+                        <p class="text-xs text-secondary truncate" title="${escapeHtml(file.commitMessage)}">
+                            <i class="fa fa-comment-o mr-1"></i>
+                            ${escapeHtml(file.commitMessage)}
+                        </p>
+                    </div>
+                    ` : ''}
+                </div>
+                <div class="px-6 py-3 bg-gray-50 border-t border-gray-100">
+                    <a href="./${file.filename}" target="_blank" rel="noopener noreferrer" class="text-primary text-sm font-medium hover:text-accent transition-colors flex items-center gap-1">
+                        查看文件
+                        <i class="fa fa-external-link text-xs"></i>
                     </a>
                 </div>
             `;
@@ -139,42 +283,223 @@
             return card;
         }
 
-        // 获取HTML文件列表的函数
-        function fetchHTMLFiles() {
-            return new Promise((resolve, reject) => {
-                try {
-                    // 调用获取文件列表的函数
-                    const files = getHtmlFilesList();
-                    
-                    // 过滤掉自身（index.html）
-                    const filteredFiles = files.filter(file => file.filename !== 'index.html');
-                    
-                    resolve(filteredFiles);
-                } catch (error) {
-                    console.error('获取文件列表失败:', error);
-                    reject(error);
+        // 获取文件图标
+        function getFileIcon(filename) {
+            const lowerName = filename.toLowerCase();
+            if (lowerName.includes('ai') || lowerName.includes('人工智能')) return 'fa-robot';
+            if (lowerName.includes('tech') || lowerName.includes('科技')) return 'fa-microchip';
+            if (lowerName.includes('news') || lowerName.includes('新闻')) return 'fa-newspaper-o';
+            if (lowerName.includes('report') || lowerName.includes('报告')) return 'fa-file-text-o';
+            return 'fa-html5';
+        }
+
+        // 显示等待状态（files.json 尚未生成）
+        function showWaitingState() {
+            const fileListContainer = document.getElementById('file-list');
+            fileListContainer.innerHTML = `
+                <div class="col-span-full text-center py-16 bg-white rounded-lg shadow">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i class="fa fa-hourglass-half text-3xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">请等待首次生成</h3>
+                    <p class="text-gray-600 mb-4">文件索引正在准备中，请稍后刷新页面。</p>
+                    <div class="space-y-2 text-sm text-gray-500">
+                        <p>首次部署后需要等待 GitHub Actions 完成：</p>
+                        <ol class="list-decimal list-inside space-y-1 max-w-md mx-auto text-left">
+                            <li>前往仓库的 Actions 页面</li>
+                            <li>找到 "Update Index" 工作流</li>
+                            <li>点击 "Run workflow" 手动触发</li>
+                            <li>或等待每小时自动执行</li>
+                        </ol>
+                    </div>
+                    <button onclick="refreshFiles()" class="mt-6 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fa fa-refresh mr-2"></i>重新加载
+                    </button>
+                </div>
+            `;
+        }
+
+        // 显示空状态
+        function showEmptyState() {
+            const fileListContainer = document.getElementById('file-list');
+            fileListContainer.innerHTML = `
+                <div class="col-span-full text-center py-16 bg-white rounded-lg shadow">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                        <i class="fa fa-folder-open-o text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">未找到HTML文件</h3>
+                    <p class="text-gray-600 mb-4">当前目录下没有发现其他HTML文件。</p>
+                    <button onclick="refreshFiles()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fa fa-refresh mr-2"></i>重新加载
+                    </button>
+                </div>
+            `;
+        }
+
+        // 显示错误状态
+        function showErrorState(errorMessage) {
+            const fileListContainer = document.getElementById('file-list');
+            fileListContainer.innerHTML = `
+                <div class="col-span-full text-center py-16 bg-white rounded-lg shadow">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                        <i class="fa fa-exclamation-circle text-3xl text-red-500"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">加载失败</h3>
+                    <p class="text-gray-600 mb-4">${errorMessage || '无法获取文件列表，请稍后重试。'}</p>
+                    <div class="flex justify-center gap-3">
+                        <button onclick="refreshFiles()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors">
+                            <i class="fa fa-refresh mr-2"></i>重新加载
+                        </button>
+                        <button onclick="loadFromCache()" class="px-4 py-2 bg-white text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-colors">
+                            <i class="fa fa-database mr-2"></i>使用缓存
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 刷新文件列表
+        async function refreshFiles() {
+            if (isLoading) return;
+            await loadFiles(true);
+        }
+
+        // 清除缓存
+        function clearCache() {
+            localStorage.removeItem(CONFIG.CACHE_KEY);
+            showNotification('缓存已清除', 'success');
+            document.getElementById('cache-status').textContent = '';
+        }
+
+        // 从缓存加载
+        function loadFromCache() {
+            const cached = getCachedData();
+            if (cached && cached.files && cached.files.length > 0) {
+                fileData = cached.files;
+                renderFiles(fileData);
+                document.getElementById('file-count').textContent = `共 ${fileData.length} 个文件 (缓存)`;
+                showNotification('已从缓存加载', 'success');
+            } else {
+                showNotification('没有可用缓存', 'error');
+            }
+        }
+
+        // 缓存数据
+        function cacheData(files) {
+            try {
+                const data = {
+                    files: files,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem(CONFIG.CACHE_KEY, JSON.stringify(data));
+            } catch (error) {
+                console.warn('缓存数据失败:', error);
+            }
+        }
+
+        // 获取缓存数据
+        function getCachedData() {
+            try {
+                const cached = localStorage.getItem(CONFIG.CACHE_KEY);
+                if (cached) {
+                    const data = JSON.parse(cached);
+                    // 检查缓存是否过期
+                    const now = new Date().getTime();
+                    const cachedTime = new Date(data.timestamp).getTime();
+                    if (now - cachedTime > CONFIG.CACHE_EXPIRY) {
+                        console.log('缓存已过期');
+                        return null;
+                    }
+                    return data;
                 }
+            } catch (error) {
+                console.warn('读取缓存失败:', error);
+            }
+            return null;
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0 || !bytes) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 格式化日期
+        function formatDate(date) {
+            if (!date || isNaN(date.getTime())) return '未知时间';
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return '刚刚';
+            if (minutes < 60) return `${minutes} 分钟前`;
+            if (hours < 24) return `${hours} 小时前`;
+            if (days < 30) return `${days} 天前`;
+            
+            return date.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
             });
         }
-    </script>
-    
-    <script>
-        // 获取HTML文件列表的函数（封装成单独的函数并放在文件末尾）
-        function getHtmlFilesList() {
-            console.log('从内置数据获取文件列表');
-            
-            // 直接在函数中定义文件列表数据
-            const htmlFilesData = {
-                "files": [
-                    { "filename": "ai_news_report_chinese.html", "title": "AI新闻精选报告 - 2026年2月11日" },
-                    { "filename": "tech_news_20260211_023845.html", "title": "科技新闻日报 - 2026年02月11日 02:38:45" },
-                    { "filename": "tech_news_20260211_104736.html", "title": "科技新闻日报 - 2026年02月11日 10:47:36" },
-                    { "filename": "tech_news_20260211_110745.html", "title": "科技新闻日报 - 2026年02月11日 11:07:45" }
-                ]
+
+        // 格式化时间
+        function formatTime(date) {
+            if (!date) return '';
+            return date.toLocaleString('zh-CN', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // HTML 转义
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const colors = {
+                info: 'bg-blue-500',
+                success: 'bg-green-500',
+                warning: 'bg-yellow-500',
+                error: 'bg-red-500'
             };
             
-            // 返回文件列表
-            return htmlFilesData.files || [];
+            const icons = {
+                info: 'fa-info-circle',
+                success: 'fa-check-circle',
+                warning: 'fa-exclamation-triangle',
+                error: 'fa-times-circle'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-up flex items-center gap-2`;
+            notification.innerHTML = `
+                <i class="fa ${icons[type]}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(-10px)';
+                notification.style.transition = 'all 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
         }
     </script>
 </body>

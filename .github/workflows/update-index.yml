@@ -1,0 +1,107 @@
+name: Update Index
+
+on:
+  # Push 到 main 分支时触发
+  push:
+    branches: [ main, master ]
+  # 每小时运行一次
+  schedule:
+    - cron: '0 * * * *'
+  # 手动触发
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 获取完整 git 历史以便获取提交信息
+    
+    - name: Generate files.json
+      run: |
+        #!/bin/bash
+        
+        # 创建 files.json
+        echo '[' > files.json
+        
+        first=true
+        # 查找所有 .html 文件，排除 index.html
+        for file in $(find . -maxdepth 1 -name "*.html" -type f | grep -v "index.html" | sort); do
+          # 移除 ./ 前缀
+          filename=$(basename "$file")
+          
+          # 获取文件大小
+          size=$(stat -c%s "$file")
+          
+          # 从 git log 获取最后修改时间和提交信息
+          last_commit=$(git log -1 --format="%H|%ci|%s" -- "$file" 2>/dev/null || echo "||")
+          
+          if [ -z "$last_commit" ] || [ "$last_commit" = "||" ]; then
+            # 文件未提交到 git，使用文件系统时间
+            modified=$(date -r "$file" +"%Y-%m-%dT%H:%M:%S%z")
+            commit_message=""
+          else
+            # 解析 git log 输出
+            commit_hash=$(echo "$last_commit" | cut -d'|' -f1)
+            modified=$(echo "$last_commit" | cut -d'|' -f2)
+            commit_message=$(echo "$last_commit" | cut -d'|' -f3-)
+          fi
+          
+          # 提取文件标题（从 <title> 标签）
+          title=$(grep -oP '(?<=<title>)[^<]+' "$file" 2>/dev/null || echo "")
+          if [ -z "$title" ]; then
+            title="${filename%.html}"
+          fi
+          
+          # 添加逗号分隔符（除了第一个元素）
+          if [ "$first" = true ]; then
+            first=false
+          else
+            echo ',' >> files.json
+          fi
+          
+          # 写入 JSON 对象
+          cat >> files.json << EOF
+        {
+          "filename": $(echo "$filename" | jq -R .),
+          "title": $(echo "$title" | jq -R .),
+          "size": $size,
+          "modified": $(echo "$modified" | jq -R .),
+          "commitMessage": $(echo "$commit_message" | jq -R .)
+        }
+        EOF
+        done
+        
+        echo '' >> files.json
+        echo ']' >> files.json
+        
+        # 验证生成的 JSON
+        if jq empty files.json 2>/dev/null; then
+          echo "✅ files.json 生成成功"
+          cat files.json
+        else
+          echo "❌ files.json 格式错误"
+          cat files.json
+          exit 1
+        fi
+    
+    - name: Commit and push if changed
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        
+        # 检查是否有变更
+        if git diff --quiet files.json 2>/dev/null && [ -f files.json ]; then
+          echo "📋 files.json 没有变更，跳过提交"
+        else
+          git add files.json
+          git commit -m "🤖 Auto-update files.json [$(date '+%Y-%m-%d %H:%M:%S')]" || exit 0
+          git push
+          echo "✅ files.json 已提交到仓库"
+        fi
