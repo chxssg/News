@@ -168,13 +168,28 @@
                 
                 const files = await response.json();
                 
+        // 解析 Git 日期格式为 ISO 8601 格式
+        // Git: "2026-02-11 01:38:45 +0800" -> ISO: "2026-02-11T01:38:45+08:00"
+        function parseGitDate(dateStr) {
+            if (!dateStr) return null;
+            // 将 Git 格式转换为 ISO 格式
+            // 替换空格为 T，并在时区偏移中添加冒号
+            const isoStr = dateStr.replace(' ', 'T').replace(/([+-])(\d{2})(\d{2})$/, '$1$2:$3');
+            const date = new Date(isoStr);
+            return isNaN(date.getTime()) ? null : date;
+        }
+
                 if (Array.isArray(files) && files.length > 0) {
                     // 处理文件数据
-                    const enrichedFiles = files.map(file => ({
-                        ...file,
-                        sizeFormatted: formatFileSize(file.size),
-                        modifiedFormatted: file.modified ? formatDate(new Date(file.modified)) : '未知时间'
-                    }));
+                    const enrichedFiles = files.map(file => {
+                        const modifiedDate = parseGitDate(file.modified);
+                        return {
+                            ...file,
+                            sizeFormatted: formatFileSize(file.size),
+                            modifiedFormatted: modifiedDate ? formatDate(modifiedDate) : '未知时间',
+                            modified: modifiedDate ? modifiedDate.toISOString() : file.modified
+                        };
+                    });
                     
                     // 按时间倒序排列
                     enrichedFiles.sort((a, b) => new Date(b.modified || 0) - new Date(a.modified || 0));
