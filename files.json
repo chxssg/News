@@ -54,5 +54,13 @@
   "modified": "2026-02-12T09:56:32+08:00",
   "commitMessage": "📰 添加科技新闻日报 2026-02-12"
 }
+,
+{
+  "filename": "tech_news_20260213_0700.html",
+  "title": "科技新闻日报 - 2026年2月13日",
+  "size": 22130,
+  "modified": "2026-02-13T07:02:57+08:00",
+  "commitMessage": "Add tech news daily report 20260213_0702"
+}
 
 ]
